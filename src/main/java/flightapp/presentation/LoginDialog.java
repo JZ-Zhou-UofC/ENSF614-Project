@@ -1,66 +1,53 @@
 package flightapp.presentation;
 
 import javax.swing.*;
-
-import flightapp.AppContext;
-import flightapp.business.controllers.AuthenticationController;
-import flightapp.business.domain.Customer;
-import flightapp.business.domain.UserRole;
-
 import java.awt.*;
 
 public class LoginDialog extends JDialog {
 
-    private final AuthenticationController authController = new AuthenticationController();
+    private final JTextField txtEmail = new JTextField(25);
+    private String enteredEmail;
 
-    public LoginDialog(JFrame parent) {
-        super(parent, "Login / Register", true);
+    public LoginDialog(Frame owner) {
+        super(owner, "Login", true);
+        initUI();
+    }
 
-        JTextField nameField  = new JTextField(15);
-        JTextField emailField = new JTextField(15);
-        JTextField phoneField = new JTextField(15);
+    private void initUI() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4,4,4,4);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Email:"), gbc);
 
-        JButton submitButton = new JButton("Login / Register");
+        gbc.gridx = 1; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
+        panel.add(txtEmail, gbc);
 
-        submitButton.addActionListener(e -> {
-            String name  = nameField.getText().trim();
-            String email = emailField.getText().trim();
-            String phone = phoneField.getText().trim();
+        JButton btnOk = new JButton("OK");
+        JButton btnCancel = new JButton("Cancel");
 
-            if (email.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Email is required.");
-                return;
-            }
-
-            if (name.isEmpty()) {
-                name = email; // fallback
-            }
-
-            Customer c = authController.loginOrRegister(name, email, phone);
-            UserRole role = authController.inferRoleFromEmail(email);
-
-            AppContext.setCurrentCustomer(c);
-            AppContext.setCurrentRole(role);
-
-            JOptionPane.showMessageDialog(this,
-                    "Logged in as " + c.getName() + " with role " + role);
-
+        btnOk.addActionListener(e -> {
+            enteredEmail = txtEmail.getText();
             dispose();
         });
 
-        JPanel form = new JPanel(new GridLayout(4, 2, 5, 5));
-        form.add(new JLabel("Name:"));
-        form.add(nameField);
-        form.add(new JLabel("Email:"));
-        form.add(emailField);
-        form.add(new JLabel("Phone:"));
-        form.add(phoneField);
-        form.add(new JLabel());
-        form.add(submitButton);
+        btnCancel.addActionListener(e -> {
+            enteredEmail = null;
+            dispose();
+        });
 
-        getContentPane().add(form, BorderLayout.CENTER);
+        JPanel buttons = new JPanel();
+        buttons.add(btnOk);
+        buttons.add(btnCancel);
+
+        getContentPane().add(panel, BorderLayout.CENTER);
+        getContentPane().add(buttons, BorderLayout.SOUTH);
         pack();
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(getOwner());
+    }
+
+    public String showDialog() {
         setVisible(true);
+        return enteredEmail;
     }
 }

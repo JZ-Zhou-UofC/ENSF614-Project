@@ -1,23 +1,20 @@
 package flightapp.business.domain;
 
-public class Customer {
+public class Customer extends User {
 
-    private int id;
-    private String name;
-    private String email;
     private String phone;
 
-    public int getId() { return id; }
+    public Customer() {}
 
-    public void setId(int id) { this.id = id; }
+    public Customer(int id, String name, String email, String phone) {
+        super(id, name, email);
+        this.phone = phone;
+    }
 
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-
-    public void setEmail(String email) { this.email = email; }
+    public Customer(String name, String email, String phone) {
+        super(0, name, email);
+        this.phone = phone;
+    }
 
     public String getPhone() { return phone; }
 
@@ -25,6 +22,11 @@ public class Customer {
 
     @Override
     public String toString() {
-        return name + " (" + email + ")";
+        return "Customer{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", email='" + email + '\'' +
+               ", phone='" + phone + '\'' +
+               '}';
     }
 }

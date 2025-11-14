@@ -7,8 +7,11 @@ public class Reservation {
     private int id;
     private Customer customer;
     private Flight flight;
-    private LocalDateTime bookingDate;
-    private String status;
+    private int seatCount;
+    private LocalDateTime bookedAt;
+    private LocalDateTime modifiedAt;
+    private Integer bookedByUserId;
+    private Integer modifiedByUserId;
 
     public int getId() { return id; }
 
@@ -22,18 +25,35 @@ public class Reservation {
 
     public void setFlight(Flight flight) { this.flight = flight; }
 
-    public LocalDateTime getBookingDate() { return bookingDate; }
+    public int getSeatCount() { return seatCount; }
 
-    public void setBookingDate(LocalDateTime bookingDate) { this.bookingDate = bookingDate; }
+    public void setSeatCount(int seatCount) { this.seatCount = seatCount; }
 
-    public String getStatus() { return status; }
+    public LocalDateTime getBookedAt() { return bookedAt; }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setBookedAt(LocalDateTime bookedAt) { this.bookedAt = bookedAt; }
+
+    public LocalDateTime getModifiedAt() { return modifiedAt; }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) { this.modifiedAt = modifiedAt; }
+
+    public Integer getBookedByUserId() { return bookedByUserId; }
+
+    public void setBookedByUserId(Integer bookedByUserId) { this.bookedByUserId = bookedByUserId; }
+
+    public Integer getModifiedByUserId() { return modifiedByUserId; }
+
+    public void setModifiedByUserId(Integer modifiedByUserId) { this.modifiedByUserId = modifiedByUserId; }
 
     @Override
     public String toString() {
-        return String.format("Reservation #%d: %s (%s)", id,
-                flight != null ? flight.toString() : "no flight",
-                status);
+        return "Reservation{" +
+               "id=" + id +
+               ", customer=" + (customer != null ? customer.getName() : "null") +
+               ", flight=" + (flight != null ? flight.getId() : -1) +
+               ", seatCount=" + seatCount +
+               ", bookedAt=" + bookedAt +
+               ", modifiedAt=" + modifiedAt +
+               '}';
     }
 }

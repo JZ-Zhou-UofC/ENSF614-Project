@@ -7,11 +7,14 @@ public class Flight {
     private int id;
     private String origin;
     private String destination;
-    private String airline;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
     private double price;
     private int seatsAvailable;
+
+    // Optional metadata
+    private LocalDateTime lastModifiedAt;
+    private Integer lastModifiedByUserId;
 
     public int getId() { return id; }
 
@@ -24,10 +27,6 @@ public class Flight {
     public String getDestination() { return destination; }
 
     public void setDestination(String destination) { this.destination = destination; }
-
-    public String getAirline() { return airline; }
-
-    public void setAirline(String airline) { this.airline = airline; }
 
     public LocalDateTime getDepartureTime() { return departureTime; }
 
@@ -45,9 +44,24 @@ public class Flight {
 
     public void setSeatsAvailable(int seatsAvailable) { this.seatsAvailable = seatsAvailable; }
 
+    public LocalDateTime getLastModifiedAt() { return lastModifiedAt; }
+
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) { this.lastModifiedAt = lastModifiedAt; }
+
+    public Integer getLastModifiedByUserId() { return lastModifiedByUserId; }
+
+    public void setLastModifiedByUserId(Integer lastModifiedByUserId) { this.lastModifiedByUserId = lastModifiedByUserId; }
+
     @Override
     public String toString() {
-        return String.format("[%d] %s → %s | %s | $%.2f | dep: %s",
-                id, origin, destination, airline, price, departureTime);
+        return "Flight{" +
+               "id=" + id +
+               ", origin='" + origin + '\'' +
+               ", destination='" + destination + '\'' +
+               ", departureTime=" + departureTime +
+               ", arrivalTime=" + arrivalTime +
+               ", price=" + price +
+               ", seatsAvailable=" + seatsAvailable +
+               '}';
     }
 }

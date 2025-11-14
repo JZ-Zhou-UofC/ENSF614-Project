@@ -1,67 +1,88 @@
 package flightapp.presentation;
 
-import javax.swing.*;
-
-import flightapp.AppContext;
-import flightapp.business.controllers.BookingController;
+import flightapp.business.controller.BookingController;
+import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 
+import javax.swing.*;
 import java.awt.*;
-import java.util.List;
+import java.sql.SQLException;
 
 public class BookingDialog extends JDialog {
 
-    private final BookingController bookingController = new BookingController();
-    private final DefaultListModel<Reservation> reservationListModel = new DefaultListModel<>();
+    private final Flight flight;
+    private final BookingController bookingController;
 
-    public BookingDialog(JFrame parent) {
-        super(parent, "My Reservations", true);
+    private final JSpinner seatSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
 
-        if (!AppContext.isLoggedIn()) {
-            JOptionPane.showMessageDialog(parent, "Please login first.");
-            dispose();
-            return;
-        }
-
-        JList<Reservation> reservationList = new JList<>(reservationListModel);
-        reservationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        JButton refreshButton = new JButton("Refresh");
-        JButton cancelButton  = new JButton("Cancel Selected");
-
-        refreshButton.addActionListener(e -> loadReservations());
-        cancelButton.addActionListener(e -> {
-            Reservation selected = reservationList.getSelectedValue();
-            if (selected == null) {
-                JOptionPane.showMessageDialog(this, "Please select a reservation to cancel.");
-                return;
-            }
-            bookingController.cancelReservation(selected);
-            JOptionPane.showMessageDialog(this, "Reservation cancelled.");
-            loadReservations();
-        });
-
-        JPanel topPanel = new JPanel();
-        topPanel.add(refreshButton);
-        topPanel.add(cancelButton);
-
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(topPanel, BorderLayout.NORTH);
-        getContentPane().add(new JScrollPane(reservationList), BorderLayout.CENTER);
-
-        setSize(700, 400);
-        setLocationRelativeTo(parent);
-
-        loadReservations();
-        setVisible(true);
+    public BookingDialog(Window owner, Flight flight, BookingController bookingController) {
+        super(owner, "Book Flight", ModalityType.APPLICATION_MODAL);
+        this.flight = flight;
+        this.bookingController = bookingController;
+        initUI();
     }
 
-    private void loadReservations() {
-        reservationListModel.clear();
-        List<Reservation> reservations = bookingController
-                .getReservationsForCustomer(AppContext.getCurrentCustomer());
-        for (Reservation r : reservations) {
-            reservationListModel.addElement(r);
+    private void initUI() {
+        JPanel main = new JPanel(new BorderLayout(8, 8));
+        main.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextArea txtDetails = new JTextArea();
+        txtDetails.setEditable(false);
+        txtDetails.setLineWrap(true);
+        txtDetails.setWrapStyleWord(true);
+        txtDetails.setText(buildFlightText());
+        main.add(new JScrollPane(txtDetails), BorderLayout.CENTER);
+
+        JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        south.add(new JLabel("Seats:"));
+        south.add(seatSpinner);
+
+        JButton btnOk = new JButton("Confirm Booking");
+        JButton btnCancel = new JButton("Cancel");
+
+        btnOk.addActionListener(e -> onConfirm());
+        btnCancel.addActionListener(e -> dispose());
+
+        south.add(btnOk);
+        south.add(btnCancel);
+
+        main.add(south, BorderLayout.SOUTH);
+
+        setContentPane(main);
+        pack();
+        setLocationRelativeTo(getOwner());
+    }
+
+    private String buildFlightText() {
+        return "Flight ID: " + flight.getId() + "\n"
+             + "From: " + flight.getOrigin() + "\n"
+             + "To: " + flight.getDestination() + "\n"
+             + "Departure: " + flight.getDepartureTime() + "\n"
+             + "Arrival: " + flight.getArrivalTime() + "\n"
+             + "Price: " + flight.getPrice() + "\n"
+             + "Seats available: " + flight.getSeatsAvailable();
+    }
+
+    private void onConfirm() {
+        int seats = (Integer) seatSpinner.getValue();
+        try {
+            Reservation r = bookingController.book(flight, seats);
+            JOptionPane.showMessageDialog(this,
+                    "Booking successful!\nReservation ID: " + r.getId(),
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (IllegalStateException ex) {
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Cannot Book",
+                    JOptionPane.WARNING_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

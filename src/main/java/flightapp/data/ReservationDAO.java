@@ -1,96 +1,58 @@
 package flightapp.data;
 
-import java.sql.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
+import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 
+import java.sql.*;
+import java.time.LocalDateTime;
+
 public class ReservationDAO {
 
-    public Reservation create(Reservation r) {
+    public Reservation insert(Reservation r) throws SQLException {
         String sql = """
-                INSERT INTO reservation (customer_id, flight_id, booking_date, status)
-                VALUES (?, ?, ?, ?)
-                """;
+            INSERT INTO reservations
+              (customer_id, flight_id, seat_count, booked_at, booked_by_user_id)
+              VALUES (?, ?, ?, ?, ?)
+            """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setInt(1, r.getCustomer().getId());
-            stmt.setInt(2, r.getFlight().getId());
-            stmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setString(4, r.getStatus());
+            ps.setInt(1, r.getCustomer().getId());
+            ps.setInt(2, r.getFlight().getId());
+            ps.setInt(3, r.getSeatCount());
+            ps.setTimestamp(4, r.getBookedAt() != null ? Timestamp.valueOf(r.getBookedAt()) : Timestamp.valueOf(LocalDateTime.now()));
+            ps.setInt(5, r.getBookedByUserId() != null ? r.getBookedByUserId() : r.getCustomer().getId());
+            ps.executeUpdate();
 
-            stmt.executeUpdate();
-            ResultSet keys = stmt.getGeneratedKeys();
-            if (keys.next()) {
-                r.setId(keys.getInt(1));
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    r.setId(keys.getInt(1));
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return r;
     }
 
-    public List<Reservation> findByCustomerId(int customerId) {
-        List<Reservation> list = new ArrayList<>();
-
+    public Reservation update(Reservation r) throws SQLException {
         String sql = """
-                SELECT r.id, r.booking_date, r.status,
-                       f.id AS flight_id, f.origin, f.destination, f.airline,
-                       f.departure_time, f.arrival_time, f.price, f.seats_available
-                FROM reservation r
-                JOIN flight f ON r.flight_id = f.id
-                WHERE r.customer_id = ?
-                ORDER BY r.booking_date DESC
-                """;
+            UPDATE reservations SET
+              flight_id = ?, seat_count = ?, modified_at = ?, modified_by_user_id = ?
+            WHERE id = ?
+            """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, customerId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Reservation r = new Reservation();
-                    r.setId(rs.getInt("id"));
-                    r.setBookingDate(rs.getTimestamp("booking_date").toLocalDateTime());
-                    r.setStatus(rs.getString("status"));
+            ps.setInt(1, r.getFlight().getId());
+            ps.setInt(2, r.getSeatCount());
+            ps.setTimestamp(3, r.getModifiedAt() != null ? Timestamp.valueOf(r.getModifiedAt()) : null);
+            ps.setObject(4, r.getModifiedByUserId());
+            ps.setInt(5, r.getId());
 
-                    Flight f = new Flight();
-                    f.setId(rs.getInt("flight_id"));
-                    f.setOrigin(rs.getString("origin"));
-                    f.setDestination(rs.getString("destination"));
-                    f.setAirline(rs.getString("airline"));
-                    f.setDepartureTime(rs.getTimestamp("departure_time").toLocalDateTime());
-                    f.setArrivalTime(rs.getTimestamp("arrival_time").toLocalDateTime());
-                    f.setPrice(rs.getDouble("price"));
-                    f.setSeatsAvailable(rs.getInt("seats_available"));
-
-                    r.setFlight(f);
-                    list.add(r);
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            ps.executeUpdate();
         }
-
-        return list;
-    }
-
-    public void updateStatus(int reservationId, String status) {
-        String sql = "UPDATE reservation SET status=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, status);
-            stmt.setInt(2, reservationId);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return r;
     }
 }

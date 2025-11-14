@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
 
-    // TODO: adjust URL, user, password to match your MySQL setup
+    // TODO: adjust DB name / user / password
     private static final String URL  = "jdbc:mysql://localhost:3306/flightdb?serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASS = "john222";
