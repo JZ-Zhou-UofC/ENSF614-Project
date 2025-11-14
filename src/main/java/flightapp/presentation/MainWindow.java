@@ -9,6 +9,7 @@ import flightapp.data.ReservationDAO;
 import flightapp.data.UserDAO;
 import flightapp.business.service.ReservationService;
 import flightapp.business.service.FlightService;
+import flightapp.presentation.admin.AdminFlightManagementDialog;
 import flightapp.presentation.agent.AgentMainDialog;   // ⭐ NEW IMPORT
 import flightapp.presentation.customer.CustomerFlightListDialog;
 import flightapp.presentation.general.FlightSearchDialog;

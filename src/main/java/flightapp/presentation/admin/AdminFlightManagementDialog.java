@@ -1,4 +1,4 @@
-package flightapp.presentation;
+package flightapp.presentation.admin;
 
 import flightapp.business.AppSession;
 import flightapp.business.domain.Admin;
