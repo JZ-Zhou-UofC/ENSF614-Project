@@ -9,6 +9,7 @@ import flightapp.data.ReservationDAO;
 import flightapp.data.UserDAO;
 import flightapp.business.service.ReservationService;
 import flightapp.business.service.FlightService;
+import flightapp.presentation.agent.AgentMainDialog;   // ⭐ NEW IMPORT
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,15 +26,21 @@ public class MainWindow extends JFrame {
     private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
 
     private JButton btnSearchFlights;
+    private JButton btnCustomerBook;
+    private JButton btnAgentPanel;     // ⭐ NEW BUTTON
     private JButton btnAdminFlights;
-    private JButton btnCustomerBook;   // ⭐ NEW BUTTON FOR CUSTOMER BOOKING ⭐
 
     public MainWindow() {
         super("FlightApp");
 
+        // ----- DAO + SERVICE SETUP -----
         UserDAO userDAO = new UserDAO();
         ReservationDAO reservationDAO = new ReservationDAO();
+
         ReservationService reservationService = new ReservationService(reservationDAO);
+
+        // ⭐ Session must hold the ReservationService
+        session.setReservationService(reservationService);
 
         this.authController = new AuthController(session, userDAO);
         this.bookingController = new BookingController(session, reservationService);
@@ -48,7 +55,7 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
 
         //
-        // --- TOP PANEL ---
+        // ----- TOP PANEL -----
         //
         JButton btnLogin = new JButton("Login...");
         btnLogin.addActionListener(e -> doLogin());
@@ -63,26 +70,33 @@ public class MainWindow extends JFrame {
         add(top, BorderLayout.NORTH);
 
         //
-        // --- CENTER PANEL ---
+        // ----- CENTER PANEL -----
         //
-        JPanel center = new JPanel(new GridLayout(4, 1, 10, 10)); // 🔥 now 4 rows
+        JPanel center = new JPanel(new GridLayout(4, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // ✔ Everyone can search flights
+        // ✔ Everyone (guest included) can search flights
         btnSearchFlights = new JButton("Search Flights");
         btnSearchFlights.setEnabled(true);
         btnSearchFlights.addActionListener(e ->
                 new FlightSearchDialog(this, flightDAO).setVisible(true)
         );
 
-        // ⭐ Customer booking button (initially disabled)
+        // ⭐ Customer-only: Book flights
         btnCustomerBook = new JButton("Book a Flight");
         btnCustomerBook.setEnabled(false);
         btnCustomerBook.addActionListener(e ->
                 new CustomerFlightListDialog(this, flightDAO, bookingController).setVisible(true)
         );
 
-        // ✔ Admin-only panel
+        // ⭐ Agent-only: Agent Panel
+        btnAgentPanel = new JButton("Agent Panel");
+        btnAgentPanel.setEnabled(false);
+        btnAgentPanel.addActionListener(e ->
+                new AgentMainDialog(this, session, bookingController).setVisible(true)
+        );
+
+        // ⭐ Admin-only: manage flights
         btnAdminFlights = new JButton("Admin: Manage Flights");
         btnAdminFlights.setEnabled(false);
         btnAdminFlights.addActionListener(e ->
@@ -94,16 +108,16 @@ public class MainWindow extends JFrame {
                 ).setVisible(true)
         );
 
-        // Add to layout
         center.add(btnSearchFlights);
-        center.add(btnCustomerBook); // ⭐ ADDED HERE
+        center.add(btnCustomerBook);
+        center.add(btnAgentPanel);      // ⭐ ADDED HERE
         center.add(btnAdminFlights);
 
         add(center, BorderLayout.CENTER);
     }
 
     //
-    // --- LOGIN LOGIC ---
+    // ----- LOGIN LOGIC -----
     //
     private void doLogin() {
         LoginDialog dialog = new LoginDialog(this);
@@ -112,12 +126,14 @@ public class MainWindow extends JFrame {
 
         try {
             User user = authController.loginByEmail(email.trim());
+
             if (user == null) {
                 JOptionPane.showMessageDialog(this, "No user found for email: " + email);
             } else {
                 lblCurrentUser.setText("<html>Logged in as:<br>" + user + "</html>");
                 updateUIBasedOnRole();
             }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Login failed: " + ex.getMessage());
@@ -125,7 +141,7 @@ public class MainWindow extends JFrame {
     }
 
     //
-    // --- ROLE-BASED UI LOGIC ---
+    // ----- ROLE-BASED UI -----
     //
     private void updateUIBasedOnRole() {
         User user = session.getCurrentUser();
@@ -134,15 +150,19 @@ public class MainWindow extends JFrame {
         btnSearchFlights.setEnabled(true);
 
         if (user == null) {
-            btnAdminFlights.setEnabled(false);
             btnCustomerBook.setEnabled(false);
+            btnAgentPanel.setEnabled(false);
+            btnAdminFlights.setEnabled(false);
             return;
         }
 
-        // ⭐ Customer can book flights
+        // ⭐ Customers can book flights
         btnCustomerBook.setEnabled(user.isCustomer());
 
-        // ⭐ Admin can manage flights
+        // ⭐ Agents get Agent Panel
+        btnAgentPanel.setEnabled(user.isAgent());
+
+        // ⭐ Admins can manage flights
         btnAdminFlights.setEnabled(user.isAdmin());
     }
 }

@@ -15,7 +15,7 @@ public class ReservationService {
 
     public ReservationService(ReservationDAO reservationDAO) {
         this.reservationDAO = reservationDAO;
-        this.flightDAO = new FlightDAO();  // needed for seat updates
+        this.flightDAO = new FlightDAO(); // needed for seat updates
     }
 
     // ---------------------------------------------------------
@@ -46,7 +46,8 @@ public class ReservationService {
     // ---------------------------------------------------------
     // BOOKING FOR AGENT (Agent books for a customer)
     // ---------------------------------------------------------
-    public Reservation bookFlightAsAgent(Agent agent, Customer customer, Flight flight, int seatCount) throws SQLException {
+    public Reservation bookFlightAsAgent(Agent agent, Customer customer, Flight flight, int seatCount)
+            throws SQLException {
         Objects.requireNonNull(agent, "agent cannot be null");
         Objects.requireNonNull(customer, "customer cannot be null");
         Objects.requireNonNull(flight, "flight cannot be null");
@@ -58,7 +59,7 @@ public class ReservationService {
         r.setFlight(flight);
         r.setSeatCount(seatCount);
         r.setBookedAt(LocalDateTime.now());
-        r.setBookedByUserId(agent.getId());  // Agent tracked here
+        r.setBookedByUserId(agent.getId()); // Agent tracked here
 
         Reservation saved = reservationDAO.insert(r);
 
@@ -87,4 +88,46 @@ public class ReservationService {
             throw new SQLException("Not enough seats available.");
         }
     }
+
+    public void cancelReservation(Reservation r, User performedBy) throws SQLException {
+        Objects.requireNonNull(r, "Reservation cannot be null");
+        Objects.requireNonNull(performedBy, "User cannot be null");
+
+        // restore seats
+        Flight flight = flightDAO.findById(r.getFlight().getId());
+        flight.setSeatsAvailable(flight.getSeatsAvailable() + r.getSeatCount());
+        flightDAO.update(flight);
+
+        // delete reservation
+        reservationDAO.delete(r.getId());
+    }
+
+    public Reservation modifyReservation(Reservation r, Flight newFlight, int newSeatCount, User performedBy)
+            throws SQLException {
+        Objects.requireNonNull(r);
+        Objects.requireNonNull(newFlight);
+        Objects.requireNonNull(performedBy);
+
+        // restore seats from old flight
+        Flight oldFlight = flightDAO.findById(r.getFlight().getId());
+        oldFlight.setSeatsAvailable(oldFlight.getSeatsAvailable() + r.getSeatCount());
+        flightDAO.update(oldFlight);
+
+        // check availability in new flight
+        validateSeatAvailability(newFlight, newSeatCount);
+
+        // deduct seats from new flight
+        Flight updated = flightDAO.findById(newFlight.getId());
+        updated.setSeatsAvailable(updated.getSeatsAvailable() - newSeatCount);
+        flightDAO.update(updated);
+
+        // update reservation
+        r.setFlight(newFlight);
+        r.setSeatCount(newSeatCount);
+        r.setModifiedAt(LocalDateTime.now());
+        r.setModifiedByUserId(performedBy.getId());
+
+        return reservationDAO.update(r);
+    }
+
 }

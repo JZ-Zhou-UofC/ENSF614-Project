@@ -16,13 +16,13 @@ public class ReservationDAO {
     // ---------------------------------------------------------
     public Reservation insert(Reservation r) throws SQLException {
         String sql = """
-            INSERT INTO reservations
-              (customer_id, flight_id, seat_count, booked_at, booked_by_user_id)
-              VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO reservations
+                  (customer_id, flight_id, seat_count, booked_at, booked_by_user_id)
+                  VALUES (?, ?, ?, ?, ?)
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, r.getCustomer().getId());
             ps.setInt(2, r.getFlight().getId());
@@ -48,22 +48,21 @@ public class ReservationDAO {
         return r;
     }
 
-
     // ---------------------------------------------------------
     // UPDATE RESERVATION (change seat count or flight)
     // ---------------------------------------------------------
     public Reservation update(Reservation r) throws SQLException {
         String sql = """
-            UPDATE reservations SET
-              flight_id = ?, 
-              seat_count = ?, 
-              modified_at = ?, 
-              modified_by_user_id = ?
-            WHERE id = ?
-            """;
+                UPDATE reservations SET
+                  flight_id = ?,
+                  seat_count = ?,
+                  modified_at = ?,
+                  modified_by_user_id = ?
+                WHERE id = ?
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, r.getFlight().getId());
             ps.setInt(2, r.getSeatCount());
@@ -89,34 +88,33 @@ public class ReservationDAO {
         return r;
     }
 
-
     // ---------------------------------------------------------
     // FIND ALL RESERVATIONS OF A CUSTOMER
     // ---------------------------------------------------------
     public List<Reservation> findByCustomer(int customerId) throws SQLException {
         String sql = """
-            SELECT r.id             AS res_id,
-                   r.seat_count     AS res_seat_count,
-                   r.booked_at      AS res_booked_at,
-                   r.booked_by_user_id,
-                   
-                   f.id             AS f_id,
-                   f.origin,
-                   f.destination,
-                   f.departure_time,
-                   f.arrival_time,
-                   f.price,
-                   f.seats_available
-            FROM reservations r
-            JOIN flights f ON r.flight_id = f.id
-            WHERE r.customer_id = ?
-            ORDER BY f.departure_time
-            """;
+                SELECT r.id             AS res_id,
+                       r.seat_count     AS res_seat_count,
+                       r.booked_at      AS res_booked_at,
+                       r.booked_by_user_id,
+
+                       f.id             AS f_id,
+                       f.origin,
+                       f.destination,
+                       f.departure_time,
+                       f.arrival_time,
+                       f.price,
+                       f.seats_available
+                FROM reservations r
+                JOIN flights f ON r.flight_id = f.id
+                WHERE r.customer_id = ?
+                ORDER BY f.departure_time
+                """;
 
         List<Reservation> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, customerId);
 
@@ -164,4 +162,16 @@ public class ReservationDAO {
 
         return list;
     }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM reservations WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
 }
