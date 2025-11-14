@@ -36,12 +36,22 @@ public class ReservationTableModel extends AbstractTableModel {
     public Object getValueAt(int row, int col) {
         Reservation r = reservations.get(row);
         switch (col) {
-            case 0: return r.getId();
-            case 1: return r.getFlight().getOrigin();
-            case 2: return r.getFlight().getDestination();
-            case 3: return r.getFlight().getDepartureTime();
-            case 4: return r.getFlight().getPrice();
-            default: return null;
+            case 0:
+                return r.getId();
+            case 1:
+                return r.getFlight().getOrigin();
+            case 2:
+                return r.getFlight().getDestination();
+            case 3:
+                return r.getFlight().getDepartureTime();
+            case 4:
+                return r.getFlight().getPrice();
+            default:
+                return null;
         }
+    }
+
+    public Reservation getReservationAt(int row) {
+        return reservations.get(row);
     }
 }

@@ -26,8 +26,8 @@ public class AgentManageCustomerDialog extends JDialog {
     private JTable reservationTable;
 
     public AgentManageCustomerDialog(Window parent,
-                                     AppSession session,
-                                     BookingController bookingController) {
+            AppSession session,
+            BookingController bookingController) {
         super(parent, "Manage Customer", ModalityType.APPLICATION_MODAL);
 
         this.session = session;
@@ -41,8 +41,7 @@ public class AgentManageCustomerDialog extends JDialog {
 
         JLabel title = new JLabel(
                 "<html><h2>Managing Customer: " + customer.getName() +
-                        " (ID: " + customer.getId() + ")</h2></html>"
-        );
+                        " (ID: " + customer.getId() + ")</h2></html>");
 
         add(title, BorderLayout.NORTH);
 
@@ -85,10 +84,21 @@ public class AgentManageCustomerDialog extends JDialog {
             Customer c = (Customer) session.getActiveCustomer();
             List<Reservation> list = reservationDAO.findByCustomer(c.getId());
             reservationTable.setModel(new ReservationTableModel(list));
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+        }
     }
 
     private void modifyReservation() {
-        JOptionPane.showMessageDialog(this, "Modify reservation functionality coming soon.");
+        int row = reservationTable.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Select a reservation to modify.");
+            return;
+        }
+
+        Reservation r = ((ReservationTableModel) reservationTable.getModel()).getReservationAt(row);
+
+        new ModifyReservationDialog(this, r, session, bookingController).setVisible(true);
+        reload(); // Refresh table after modification
     }
+
 }

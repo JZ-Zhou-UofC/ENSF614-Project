@@ -1,9 +1,12 @@
 package flightapp.business.service;
 
 import flightapp.business.domain.*;
+import flightapp.data.DBConnection;
 import flightapp.data.FlightDAO;
 import flightapp.data.ReservationDAO;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -102,32 +105,16 @@ public class ReservationService {
         reservationDAO.delete(r.getId());
     }
 
-    public Reservation modifyReservation(Reservation r, Flight newFlight, int newSeatCount, User performedBy)
-            throws SQLException {
+    public Reservation modifyReservation(Reservation r) throws SQLException {
         Objects.requireNonNull(r);
-        Objects.requireNonNull(newFlight);
-        Objects.requireNonNull(performedBy);
 
-        // restore seats from old flight
-        Flight oldFlight = flightDAO.findById(r.getFlight().getId());
-        oldFlight.setSeatsAvailable(oldFlight.getSeatsAvailable() + r.getSeatCount());
-        flightDAO.update(oldFlight);
-
-        // check availability in new flight
-        validateSeatAvailability(newFlight, newSeatCount);
-
-        // deduct seats from new flight
-        Flight updated = flightDAO.findById(newFlight.getId());
-        updated.setSeatsAvailable(updated.getSeatsAvailable() - newSeatCount);
-        flightDAO.update(updated);
-
-        // update reservation
-        r.setFlight(newFlight);
-        r.setSeatCount(newSeatCount);
+        // set audit fields if needed
         r.setModifiedAt(LocalDateTime.now());
-        r.setModifiedByUserId(performedBy.getId());
 
         return reservationDAO.update(r);
     }
 
+    public void deleteReservation(Reservation reservation) throws SQLException {
+        reservationDAO.delete(reservation.getId());
+    }
 }

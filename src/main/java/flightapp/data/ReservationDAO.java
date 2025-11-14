@@ -66,25 +66,13 @@ public class ReservationDAO {
 
             ps.setInt(1, r.getFlight().getId());
             ps.setInt(2, r.getSeatCount());
-
-            // modified_at
-            if (r.getModifiedAt() != null) {
-                ps.setTimestamp(3, Timestamp.valueOf(r.getModifiedAt()));
-            } else {
-                ps.setNull(3, Types.TIMESTAMP);
-            }
-
-            // modified_by_user_id
-            if (r.getModifiedByUserId() != null) {
-                ps.setInt(4, r.getModifiedByUserId());
-            } else {
-                ps.setNull(4, Types.INTEGER);
-            }
-
+            ps.setTimestamp(3, r.getModifiedAt() != null ? Timestamp.valueOf(r.getModifiedAt()) : null);
+            ps.setObject(4, r.getModifiedByUserId());
             ps.setInt(5, r.getId());
 
             ps.executeUpdate();
         }
+
         return r;
     }
 
