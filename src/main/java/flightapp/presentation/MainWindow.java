@@ -24,7 +24,7 @@ public class MainWindow extends JFrame {
     private final FlightDAO flightDAO = new FlightDAO();
 
     // UI Components
-    private final JLabel lblCurrentUser = new JLabel("Not logged in");
+    private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
     private JButton btnSearchFlights;
     private JButton btnAdminFlights;
 
@@ -55,6 +55,10 @@ public class MainWindow extends JFrame {
 
         JPanel top = new JPanel(new BorderLayout());
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // allow label to wrap to 2 lines
+        lblCurrentUser.setVerticalAlignment(SwingConstants.TOP);
+
         top.add(lblCurrentUser, BorderLayout.CENTER);
         top.add(btnLogin, BorderLayout.EAST);
 
@@ -104,7 +108,10 @@ public class MainWindow extends JFrame {
             if (user == null) {
                 JOptionPane.showMessageDialog(this, "No user found for email: " + email);
             } else {
-                lblCurrentUser.setText("Logged in as: " + user);
+
+                // ⭐ MULTI-LINE USER LABEL ⭐
+                lblCurrentUser.setText("<html>Logged in as:<br>" + user.toString() + "</html>");
+
                 updateUIBasedOnRole();
             }
         } catch (SQLException ex) {
