@@ -1,4 +1,4 @@
-package flightapp.presentation;
+package flightapp.presentation.customer;
 
 import flightapp.business.controller.BookingController;
 import flightapp.business.domain.Flight;

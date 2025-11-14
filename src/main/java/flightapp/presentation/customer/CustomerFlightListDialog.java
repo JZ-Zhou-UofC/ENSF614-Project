@@ -1,4 +1,4 @@
-package flightapp.presentation;
+package flightapp.presentation.customer;
 
 import flightapp.business.AppSession;
 import flightapp.business.controller.BookingController;
@@ -7,6 +7,8 @@ import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 import flightapp.data.FlightDAO;
 import flightapp.data.ReservationDAO;
+import flightapp.presentation.general.FlightTableModel;
+import flightapp.presentation.general.ReservationTableModel;
 
 import javax.swing.*;
 import java.awt.*;

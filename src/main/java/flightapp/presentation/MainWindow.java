@@ -10,6 +10,9 @@ import flightapp.data.UserDAO;
 import flightapp.business.service.ReservationService;
 import flightapp.business.service.FlightService;
 import flightapp.presentation.agent.AgentMainDialog;   // ⭐ NEW IMPORT
+import flightapp.presentation.customer.CustomerFlightListDialog;
+import flightapp.presentation.general.FlightSearchDialog;
+import flightapp.presentation.general.LoginDialog;
 
 import javax.swing.*;
 import java.awt.*;

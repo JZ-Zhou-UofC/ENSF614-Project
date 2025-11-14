@@ -1,4 +1,4 @@
-package flightapp.presentation;
+package flightapp.presentation.general;
 
 import flightapp.business.domain.Flight;
 

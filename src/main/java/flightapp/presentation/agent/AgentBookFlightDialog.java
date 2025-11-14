@@ -5,13 +5,12 @@ import flightapp.business.controller.BookingController;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 import flightapp.data.FlightDAO;
+import flightapp.presentation.general.FlightTableModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
-
-import flightapp.presentation.FlightTableModel;
 
 public class AgentBookFlightDialog extends JDialog {
 
