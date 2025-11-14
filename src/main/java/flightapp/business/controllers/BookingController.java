@@ -1,13 +1,13 @@
 package flightapp.business.controllers;
 
+import java.util.List;
+
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Payment;
 import flightapp.business.domain.Reservation;
 import flightapp.data.PaymentDAO;
 import flightapp.data.ReservationDAO;
-
-import java.util.List;
 
 public class BookingController {
 

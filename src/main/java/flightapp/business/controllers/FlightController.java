@@ -1,10 +1,10 @@
 package flightapp.business.controllers;
 
-import flightapp.business.domain.Flight;
-import flightapp.data.FlightDAO;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import flightapp.business.domain.Flight;
+import flightapp.data.FlightDAO;
 
 public class FlightController {
 

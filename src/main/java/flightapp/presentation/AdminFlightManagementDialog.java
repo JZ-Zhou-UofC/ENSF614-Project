@@ -1,10 +1,11 @@
 package flightapp.presentation;
 
+import javax.swing.*;
+
 import flightapp.AppContext;
 import flightapp.business.controllers.FlightController;
 import flightapp.business.domain.Flight;
 
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

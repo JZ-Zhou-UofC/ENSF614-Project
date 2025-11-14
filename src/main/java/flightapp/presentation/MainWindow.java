@@ -1,9 +1,10 @@
 package flightapp.presentation;
 
+import javax.swing.*;
+
 import flightapp.AppContext;
 import flightapp.business.domain.UserRole;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class MainWindow extends JFrame {

@@ -1,8 +1,7 @@
 package flightapp;
 
-import flightapp.presentation.MainWindow;
-
 import javax.swing.*;
+import flightapp.presentation.MainWindow;
 
 public class App {
     public static void main(String[] args) {

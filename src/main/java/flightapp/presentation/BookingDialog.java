@@ -1,10 +1,11 @@
 package flightapp.presentation;
 
+import javax.swing.*;
+
 import flightapp.AppContext;
 import flightapp.business.controllers.BookingController;
 import flightapp.business.domain.Reservation;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 

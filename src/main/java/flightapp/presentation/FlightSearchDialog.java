@@ -1,5 +1,7 @@
 package flightapp.presentation;
 
+import javax.swing.*;
+
 import flightapp.AppContext;
 import flightapp.business.controllers.BookingController;
 import flightapp.business.controllers.FlightController;
@@ -7,7 +9,6 @@ import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;

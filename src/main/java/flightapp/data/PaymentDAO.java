@@ -1,9 +1,9 @@
 package flightapp.data;
 
-import flightapp.business.domain.Payment;
-
 import java.sql.*;
 import java.time.LocalDateTime;
+
+import flightapp.business.domain.Payment;
 
 public class PaymentDAO {
 

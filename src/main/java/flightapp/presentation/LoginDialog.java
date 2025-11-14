@@ -1,11 +1,12 @@
 package flightapp.presentation;
 
+import javax.swing.*;
+
 import flightapp.AppContext;
 import flightapp.business.controllers.AuthenticationController;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.UserRole;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class LoginDialog extends JDialog {

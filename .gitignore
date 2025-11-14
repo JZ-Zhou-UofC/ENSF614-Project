@@ -1,0 +1,82 @@
+###############################
+# Maven build output
+###############################
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+###############################
+# Compiled class files
+###############################
+*.class
+
+###############################
+# Logs
+###############################
+*.log
+
+###############################
+# IDE specific files
+###############################
+
+# VS Code
+.vscode/
+.history/
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+###############################
+# Operating System Files
+###############################
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+###############################
+# Java specific
+###############################
+*.jar
+*.war
+*.ear
+
+###############################
+# Environment / secrets
+###############################
+*.env
+*.local
+*.properties.local
+
+###############################
+# Temporary files
+###############################
+*.tmp
+*.bak
+*.swp
+*.swo
+
+###############################
+# MySQL / DB dumps
+###############################
+*.sql
+*.dump
+*.db

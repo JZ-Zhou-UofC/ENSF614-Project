@@ -1,10 +1,10 @@
 package flightapp.data;
 
-import flightapp.business.domain.Customer;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import flightapp.business.domain.Customer;
 
 public class CustomerDAO {
 
