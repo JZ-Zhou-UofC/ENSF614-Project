@@ -23,8 +23,10 @@ public class MainWindow extends JFrame {
     private final FlightDAO flightDAO = new FlightDAO();
 
     private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
+
     private JButton btnSearchFlights;
     private JButton btnAdminFlights;
+    private JButton btnCustomerBook;   // ⭐ NEW BUTTON FOR CUSTOMER BOOKING ⭐
 
     public MainWindow() {
         super("FlightApp");
@@ -63,16 +65,24 @@ public class MainWindow extends JFrame {
         //
         // --- CENTER PANEL ---
         //
-        JPanel center = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel center = new JPanel(new GridLayout(4, 1, 10, 10)); // 🔥 now 4 rows
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Always enabled — guest can view flights too
+        // ✔ Everyone can search flights
         btnSearchFlights = new JButton("Search Flights");
         btnSearchFlights.setEnabled(true);
         btnSearchFlights.addActionListener(e ->
                 new FlightSearchDialog(this, flightDAO).setVisible(true)
         );
 
+        // ⭐ Customer booking button (initially disabled)
+        btnCustomerBook = new JButton("Book a Flight");
+        btnCustomerBook.setEnabled(false);
+        btnCustomerBook.addActionListener(e ->
+                new CustomerFlightListDialog(this, flightDAO, bookingController).setVisible(true)
+        );
+
+        // ✔ Admin-only panel
         btnAdminFlights = new JButton("Admin: Manage Flights");
         btnAdminFlights.setEnabled(false);
         btnAdminFlights.addActionListener(e ->
@@ -84,7 +94,9 @@ public class MainWindow extends JFrame {
                 ).setVisible(true)
         );
 
+        // Add to layout
         center.add(btnSearchFlights);
+        center.add(btnCustomerBook); // ⭐ ADDED HERE
         center.add(btnAdminFlights);
 
         add(center, BorderLayout.CENTER);
@@ -118,18 +130,19 @@ public class MainWindow extends JFrame {
     private void updateUIBasedOnRole() {
         User user = session.getCurrentUser();
 
-        // Everyone (guest included) can search flights
+        // ✔ Everyone can search flights
         btnSearchFlights.setEnabled(true);
 
         if (user == null) {
             btnAdminFlights.setEnabled(false);
+            btnCustomerBook.setEnabled(false);
             return;
         }
 
-        if (user.isAdmin()) {
-            btnAdminFlights.setEnabled(true);
-        } else {
-            btnAdminFlights.setEnabled(false);
-        }
+        // ⭐ Customer can book flights
+        btnCustomerBook.setEnabled(user.isCustomer());
+
+        // ⭐ Admin can manage flights
+        btnAdminFlights.setEnabled(user.isAdmin());
     }
 }
