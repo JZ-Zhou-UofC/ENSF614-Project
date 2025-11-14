@@ -20,10 +20,8 @@ public class MainWindow extends JFrame {
     private final AuthController authController;
     private final BookingController bookingController;
 
-    // Shared DAOs
     private final FlightDAO flightDAO = new FlightDAO();
 
-    // UI Components
     private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
     private JButton btnSearchFlights;
     private JButton btnAdminFlights;
@@ -31,7 +29,6 @@ public class MainWindow extends JFrame {
     public MainWindow() {
         super("FlightApp");
 
-        // Data access and services
         UserDAO userDAO = new UserDAO();
         ReservationDAO reservationDAO = new ReservationDAO();
         ReservationService reservationService = new ReservationService(reservationDAO);
@@ -46,9 +43,10 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         //
-        // --- TOP PANEL (Login + Current User)
+        // --- TOP PANEL ---
         //
         JButton btnLogin = new JButton("Login...");
         btnLogin.addActionListener(e -> doLogin());
@@ -56,28 +54,25 @@ public class MainWindow extends JFrame {
         JPanel top = new JPanel(new BorderLayout());
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // allow label to wrap to 2 lines
         lblCurrentUser.setVerticalAlignment(SwingConstants.TOP);
 
         top.add(lblCurrentUser, BorderLayout.CENTER);
         top.add(btnLogin, BorderLayout.EAST);
-
         add(top, BorderLayout.NORTH);
 
         //
-        // --- CENTER ACTION PANEL ---
+        // --- CENTER PANEL ---
         //
         JPanel center = new JPanel(new GridLayout(3, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Search flights (Customer + Agent)
+        // Always enabled — guest can view flights too
         btnSearchFlights = new JButton("Search Flights");
-        btnSearchFlights.setEnabled(false); // enabled after login
+        btnSearchFlights.setEnabled(true);
         btnSearchFlights.addActionListener(e ->
-                new FlightSearchDialog(this, flightDAO, bookingController).setVisible(true)
+                new FlightSearchDialog(this, flightDAO).setVisible(true)
         );
 
-        // Admin-only flight management
         btnAdminFlights = new JButton("Admin: Manage Flights");
         btnAdminFlights.setEnabled(false);
         btnAdminFlights.addActionListener(e ->
@@ -96,7 +91,7 @@ public class MainWindow extends JFrame {
     }
 
     //
-    // --- LOGIN HANDLING ---
+    // --- LOGIN LOGIC ---
     //
     private void doLogin() {
         LoginDialog dialog = new LoginDialog(this);
@@ -108,10 +103,7 @@ public class MainWindow extends JFrame {
             if (user == null) {
                 JOptionPane.showMessageDialog(this, "No user found for email: " + email);
             } else {
-
-                // ⭐ MULTI-LINE USER LABEL ⭐
-                lblCurrentUser.setText("<html>Logged in as:<br>" + user.toString() + "</html>");
-
+                lblCurrentUser.setText("<html>Logged in as:<br>" + user + "</html>");
                 updateUIBasedOnRole();
             }
         } catch (SQLException ex) {
@@ -121,28 +113,23 @@ public class MainWindow extends JFrame {
     }
 
     //
-    // --- ROLE-BASED UI ENABLE/DISABLE ---
+    // --- ROLE-BASED UI LOGIC ---
     //
     private void updateUIBasedOnRole() {
-        var user = session.getCurrentUser();
+        User user = session.getCurrentUser();
+
+        // Everyone (guest included) can search flights
+        btnSearchFlights.setEnabled(true);
 
         if (user == null) {
-            btnSearchFlights.setEnabled(false);
             btnAdminFlights.setEnabled(false);
             return;
         }
 
-        if (user.isCustomer()) {
-            btnSearchFlights.setEnabled(true);
-            btnAdminFlights.setEnabled(false);
-        }
-        else if (user.isAgent()) {
-            btnSearchFlights.setEnabled(true);
-            btnAdminFlights.setEnabled(false);
-        }
-        else if (user.isAdmin()) {
-            btnSearchFlights.setEnabled(false);
+        if (user.isAdmin()) {
             btnAdminFlights.setEnabled(true);
+        } else {
+            btnAdminFlights.setEnabled(false);
         }
     }
 }

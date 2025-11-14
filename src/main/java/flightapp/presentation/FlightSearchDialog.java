@@ -1,108 +1,103 @@
 package flightapp.presentation;
 
-import flightapp.business.controller.BookingController;
 import flightapp.business.domain.Flight;
 import flightapp.data.FlightDAO;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FlightSearchDialog extends JDialog {
 
     private final FlightDAO flightDAO;
-    private final BookingController bookingController;
 
     private final JTextField txtOrigin = new JTextField(10);
-    private final JTextField txtDestination = new JTextField(10);
-    private final FlightTableModel tableModel = new FlightTableModel();
-    private final JTable table = new JTable(tableModel);
+    private final JTextField txtDest   = new JTextField(10);
 
-    private List<Flight> allFlights;
+    private final DefaultTableModel tableModel;
+    private final JTable tblFlights;
 
-    public FlightSearchDialog(Frame owner,
-                              FlightDAO flightDAO,
-                              BookingController bookingController) {
-        super(owner, "Search Flights", true);
+    public FlightSearchDialog(JFrame parent, FlightDAO flightDAO) {
+        super(parent, "Search Flights", true);
         this.flightDAO = flightDAO;
-        this.bookingController = bookingController;
-        initUI();
-        loadFlights();
-    }
 
-    private void initUI() {
-        JPanel filters = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filters.add(new JLabel("From:"));
-        filters.add(txtOrigin);
-        filters.add(new JLabel("To:"));
-        filters.add(txtDestination);
+        setSize(800, 450);
+        setLocationRelativeTo(parent);
+        setLayout(new BorderLayout(10, 10));
+
+        //
+        // --- TOP SEARCH PANEL ---
+        //
+        JPanel top = new JPanel();
+        top.add(new JLabel("From:"));
+        top.add(txtOrigin);
+        top.add(new JLabel("To:"));
+        top.add(txtDest);
 
         JButton btnSearch = new JButton("Search");
-        btnSearch.addActionListener(e -> applyFilter());
-        filters.add(btnSearch);
+        top.add(btnSearch);
 
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane scroll = new JScrollPane(table);
+        add(top, BorderLayout.NORTH);
 
-        JButton btnBook = new JButton("Book Selected Flight");
-        btnBook.addActionListener(e -> openBooking());
+        //
+        // --- CENTER TABLE (VIEW ONLY) ---
+        //
+        tableModel = new DefaultTableModel(
+                new Object[]{"Origin", "Destination", "Departure", "Arrival", "Price", "Seats"},
+                0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
 
-        JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        south.add(btnBook);
+        tblFlights = new JTable(tableModel);
+        tblFlights.setFillsViewportHeight(true);
 
-        JPanel main = new JPanel(new BorderLayout(5, 5));
-        main.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        main.add(filters, BorderLayout.NORTH);
-        main.add(scroll, BorderLayout.CENTER);
-        main.add(south, BorderLayout.SOUTH);
+        add(new JScrollPane(tblFlights), BorderLayout.CENTER);
 
-        setContentPane(main);
-        setSize(800, 400);
-        setLocationRelativeTo(getOwner());
+        //
+        // --- BOTTOM CLOSE BUTTON ---
+        //
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnClose = new JButton("Close");
+        bottom.add(btnClose);
+
+        add(bottom, BorderLayout.SOUTH);
+
+        //
+        // EVENT LISTENERS
+        //
+        btnSearch.addActionListener(e -> doSearch());
+        btnClose.addActionListener(e -> dispose());
     }
 
-    private void loadFlights() {
+    private void doSearch() {
+        String origin = txtOrigin.getText().trim();
+        String dest   = txtDest.getText().trim();
+
         try {
-            allFlights = flightDAO.findAll();
-            tableModel.setFlights(allFlights);
+            List<Flight> flights = flightDAO.searchFlights(origin, dest);
+
+            tableModel.setRowCount(0);
+
+            for (Flight f : flights) {
+                tableModel.addRow(new Object[]{
+                        f.getOrigin(),
+                        f.getDestination(),
+                        f.getDepartureTime(),
+                        f.getArrivalTime(),
+                        f.getPrice(),
+                        f.getSeatsAvailable()
+                });
+            }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Failed to load flights: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error searching flights:\n" + ex.getMessage());
         }
-    }
-
-    private void applyFilter() {
-        if (allFlights == null) return;
-
-        String origin = txtOrigin.getText().trim().toLowerCase();
-        String dest = txtDestination.getText().trim().toLowerCase();
-
-        List<Flight> filtered = allFlights.stream()
-                .filter(f -> origin.isEmpty() ||
-                        (f.getOrigin() != null && f.getOrigin().toLowerCase().contains(origin)))
-                .filter(f -> dest.isEmpty() ||
-                        (f.getDestination() != null && f.getDestination().toLowerCase().contains(dest)))
-                .collect(Collectors.toList());
-
-        tableModel.setFlights(filtered);
-    }
-
-    private void openBooking() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a flight first.",
-                    "No Selection",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Flight selected = tableModel.getFlightAt(row);
-        BookingDialog dialog = new BookingDialog(this, selected, bookingController);
-        dialog.setVisible(true);
     }
 }
