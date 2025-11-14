@@ -34,7 +34,6 @@ public class CustomerBookingDialog extends JDialog {
         JPanel bottom = new JPanel();
         bottom.add(btnConfirm);
         bottom.add(btnCancel);
-
         add(bottom, BorderLayout.SOUTH);
 
         btnConfirm.addActionListener(e -> {
@@ -44,7 +43,6 @@ public class CustomerBookingDialog extends JDialog {
                         "Booking successful!\nReservation ID: " + r.getId());
                 dispose();
             } catch (SQLException ex) {
-                ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Booking failed: " + ex.getMessage());
             }
         });
