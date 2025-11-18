@@ -24,7 +24,7 @@ public class BookingController {
     // ⭐ Customer or agent booking
     public Reservation book(Flight flight, int seatCount) throws SQLException {
         User user = session.getCurrentUser();
-
+        
         if (user instanceof Customer c) {
             return reservationService.bookFlightAsCustomer(c, flight, seatCount);
         }
