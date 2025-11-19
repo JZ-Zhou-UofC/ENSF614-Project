@@ -21,14 +21,16 @@ import java.sql.SQLException;
 
 public class MainWindow extends JFrame {
 
-    private User currentUser; // ⭐ Logged-in session user
+    private User currentUser; // ⭐ Logged-in user
 
-    // ⭐ Controllers — each controller internally creates its own DAOs
+    // Controllers
     private final AuthController authController;
     private final BookingController bookingController;
     private final FlightController flightController;
 
+    // UI Components
     private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
+    private JButton btnLogout;
 
     private JButton btnSearchFlights;
     private JButton btnCustomerBook;
@@ -38,7 +40,7 @@ public class MainWindow extends JFrame {
     public MainWindow() {
         super("FlightApp");
 
-        // ⭐ Clean architecture: UI owns controllers, controllers own services/DAOs
+        // Controllers (each owns its own DAOs/services)
         this.flightController = new FlightController();
         this.authController = new AuthController();
         this.bookingController = new BookingController();
@@ -53,19 +55,27 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
 
         //
-        // ----- TOP PANEL -----
+        // ----- TOP PANEL (Login + Logout) -----
         //
         JButton btnLogin = new JButton("Login...");
+        btnLogout = new JButton("Logout");
+        btnLogout.setEnabled(false); // disabled until logged in
+
         btnLogin.addActionListener(e -> doLogin());
+        btnLogout.addActionListener(e -> doLogout());
+
+        JPanel right = new JPanel();
+        right.add(btnLogin);
+        right.add(btnLogout);
 
         JPanel top = new JPanel(new BorderLayout());
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         lblCurrentUser.setVerticalAlignment(SwingConstants.TOP);
 
         top.add(lblCurrentUser, BorderLayout.CENTER);
-        top.add(btnLogin, BorderLayout.EAST);
-        add(top, BorderLayout.NORTH);
+        top.add(right, BorderLayout.EAST);
 
+        add(top, BorderLayout.NORTH);
 
         //
         // ----- CENTER PANEL -----
@@ -73,15 +83,13 @@ public class MainWindow extends JFrame {
         JPanel center = new JPanel(new GridLayout(4, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Everyone can search flights
+        // Everyone (guest included) can search flights
         btnSearchFlights = new JButton("Search Flights");
         btnSearchFlights.addActionListener(e ->
             new FlightSearchDialog(this, flightController).setVisible(true)
         );
 
-        //
-        // CUSTOMER BOOKING
-        //
+        // CUSTOMER: book flights
         btnCustomerBook = new JButton("Book a Flight");
         btnCustomerBook.setEnabled(false);
         btnCustomerBook.addActionListener(e -> {
@@ -95,9 +103,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        //
-        // AGENT PANEL
-        //
+        // AGENT panel
         btnAgentPanel = new JButton("Agent Panel");
         btnAgentPanel.setEnabled(false);
         btnAgentPanel.addActionListener(e -> {
@@ -111,18 +117,18 @@ public class MainWindow extends JFrame {
             }
         });
 
-        //
-        // ADMIN PANEL
-        //
+        // ADMIN: flight management
         btnAdminFlights = new JButton("Admin: Manage Flights");
         btnAdminFlights.setEnabled(false);
-        btnAdminFlights.addActionListener(e ->
-           {   if (currentUser instanceof Admin admin) {new AdminFlightManagementDialog(
-                    this,
-                    flightController,
-                    admin
-            ).setVisible(true);}} 
-        );
+        btnAdminFlights.addActionListener(e -> {
+            if (currentUser instanceof Admin admin) {
+                new AdminFlightManagementDialog(
+                        this,
+                        flightController,
+                        admin
+                ).setVisible(true);
+            }
+        });
 
         center.add(btnSearchFlights);
         center.add(btnCustomerBook);
@@ -133,7 +139,7 @@ public class MainWindow extends JFrame {
     }
 
     //
-    // ===== LOGIN LOGIC =====
+    // ===== LOGIN =====
     //
     private void doLogin() {
         LoginDialog dialog = new LoginDialog(this);
@@ -154,12 +160,32 @@ public class MainWindow extends JFrame {
 
             lblCurrentUser.setText("<html>Logged in as:<br>" + user + "</html>");
 
+            btnLogout.setEnabled(true); // enable logout
+
             updateUIByRole();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Login failed: " + ex.getMessage());
         }
+    }
+
+    //
+    // ===== LOGOUT =====
+    //
+    private void doLogout() {
+        this.currentUser = null;
+
+        lblCurrentUser.setText("<html>Not logged in</html>");
+
+        btnLogout.setEnabled(false);
+
+        // Reset UI
+        btnCustomerBook.setEnabled(false);
+        btnAgentPanel.setEnabled(false);
+        btnAdminFlights.setEnabled(false);
+
+        JOptionPane.showMessageDialog(this, "Logged out successfully.");
     }
 
     //
