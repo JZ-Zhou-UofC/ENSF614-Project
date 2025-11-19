@@ -1,7 +1,8 @@
 package flightapp.presentation.agent;
 
-import flightapp.business.AppSession;
 import flightapp.business.controller.BookingController;
+import flightapp.business.controller.FlightController;
+import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.data.UserDAO;
 
@@ -12,37 +13,42 @@ import java.util.List;
 
 public class AgentSelectCustomerDialog extends JDialog {
 
-    private final AppSession session;
+    private final Agent agentUser;
+    private final FlightController flightController;
     private final BookingController bookingController;
     private final UserDAO userDAO = new UserDAO();
 
     private JTable table;
 
-    public AgentSelectCustomerDialog(Window parent,
-                                     AppSession session,
-                                     BookingController bookingController) {
+    public AgentSelectCustomerDialog(
+            Window parent,
+            Agent agentUser,
+            FlightController flightController,
+            BookingController bookingController
+    ) {
         super(parent, "Select Customer", ModalityType.APPLICATION_MODAL);
 
-        this.session = session;
+        this.agentUser = agentUser;
+        this.flightController = flightController;
         this.bookingController = bookingController;
 
-        setSize(500, 400);
+        setSize(520, 420);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
         loadCustomers();
 
-        JButton btnSelect = new JButton("Manage Selected Customer");
+        JButton btnSelect = new JButton("Manage Customer");
         JButton btnClose = new JButton("Close");
 
-        JPanel bottom = new JPanel();
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottom.add(btnSelect);
         bottom.add(btnClose);
 
+        add(bottom, BorderLayout.SOUTH);
+
         btnSelect.addActionListener(e -> selectCustomer());
         btnClose.addActionListener(e -> dispose());
-
-        add(bottom, BorderLayout.SOUTH);
     }
 
     private void loadCustomers() {
@@ -51,21 +57,27 @@ public class AgentSelectCustomerDialog extends JDialog {
             table = new JTable(new AgentCustomerTableModel(list));
             add(new JScrollPane(table), BorderLayout.CENTER);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error loading customers: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading customers:\n" + ex.getMessage());
         }
     }
 
     private void selectCustomer() {
         int row = table.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a customer.");
+            JOptionPane.showMessageDialog(this, "Please select a customer.");
             return;
         }
 
         Customer customer = ((AgentCustomerTableModel) table.getModel()).getCustomerAt(row);
-        session.setActiveCustomer(customer);
 
-        new AgentManageCustomerDialog(this, session, bookingController).setVisible(true);
+        new AgentManageCustomerDialog(
+                this,
+                agentUser,
+                customer,
+                flightController,
+                bookingController
+        ).setVisible(true);
+
         dispose();
     }
 }

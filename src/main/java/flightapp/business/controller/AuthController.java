@@ -1,6 +1,5 @@
 package flightapp.business.controller;
 
-import flightapp.business.AppSession;
 import flightapp.business.domain.User;
 import flightapp.data.UserDAO;
 
@@ -8,19 +7,23 @@ import java.sql.SQLException;
 
 public class AuthController {
 
-    private final AppSession session;
     private final UserDAO userDAO;
 
-    public AuthController(AppSession session, UserDAO userDAO) {
-        this.session = session;
+    // ⭐ Controller creates its own DAO
+    public AuthController() {
+        this.userDAO = new UserDAO();
+    }
+
+    // ⭐ Optional constructor for testing or overriding dependency
+    public AuthController(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
+    /**
+     * Login by email and return the User.
+     * Let MainWindow set currentUser itself.
+     */
     public User loginByEmail(String email) throws SQLException {
-        User user = userDAO.findByEmail(email);
-        if (user != null) {
-            session.setCurrentUser(user);
-        }
-        return user;
+        return userDAO.findByEmail(email);  // no AppSession anymore
     }
 }

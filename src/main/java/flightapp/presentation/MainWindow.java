@@ -1,16 +1,16 @@
 package flightapp.presentation;
 
-import flightapp.business.AppSession;
 import flightapp.business.controller.AuthController;
 import flightapp.business.controller.BookingController;
+import flightapp.business.controller.FlightController;
+
+import flightapp.business.domain.Customer;
+import flightapp.business.domain.Agent;
 import flightapp.business.domain.User;
-import flightapp.data.FlightDAO;
-import flightapp.data.ReservationDAO;
-import flightapp.data.UserDAO;
-import flightapp.business.service.ReservationService;
-import flightapp.business.service.FlightService;
+import flightapp.business.domain.Admin;
+
 import flightapp.presentation.admin.AdminFlightManagementDialog;
-import flightapp.presentation.agent.AgentMainDialog;   // ⭐ NEW IMPORT
+import flightapp.presentation.agent.AgentMainDialog;
 import flightapp.presentation.customer.CustomerFlightListDialog;
 import flightapp.presentation.general.FlightSearchDialog;
 import flightapp.presentation.general.LoginDialog;
@@ -21,33 +21,27 @@ import java.sql.SQLException;
 
 public class MainWindow extends JFrame {
 
-    private final AppSession session = new AppSession();
+    private User currentUser; // ⭐ Logged-in session user
+
+    // ⭐ Controllers — each controller internally creates its own DAOs
     private final AuthController authController;
     private final BookingController bookingController;
-
-    private final FlightDAO flightDAO = new FlightDAO();
+    private final FlightController flightController;
 
     private final JLabel lblCurrentUser = new JLabel("<html>Not logged in</html>");
 
     private JButton btnSearchFlights;
     private JButton btnCustomerBook;
-    private JButton btnAgentPanel;     // ⭐ NEW BUTTON
+    private JButton btnAgentPanel;
     private JButton btnAdminFlights;
 
     public MainWindow() {
         super("FlightApp");
 
-        // ----- DAO + SERVICE SETUP -----
-        UserDAO userDAO = new UserDAO();
-        ReservationDAO reservationDAO = new ReservationDAO();
-
-        ReservationService reservationService = new ReservationService(reservationDAO);
-
-        // ⭐ Session must hold the ReservationService
-        session.setReservationService(reservationService);
-
-        this.authController = new AuthController(session, userDAO);
-        this.bookingController = new BookingController(session, reservationService);
+        // ⭐ Clean architecture: UI owns controllers, controllers own services/DAOs
+        this.flightController = new FlightController();
+        this.authController = new AuthController();
+        this.bookingController = new BookingController();
 
         initUI();
     }
@@ -66,12 +60,12 @@ public class MainWindow extends JFrame {
 
         JPanel top = new JPanel(new BorderLayout());
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         lblCurrentUser.setVerticalAlignment(SwingConstants.TOP);
 
         top.add(lblCurrentUser, BorderLayout.CENTER);
         top.add(btnLogin, BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
+
 
         //
         // ----- CENTER PANEL -----
@@ -79,64 +73,88 @@ public class MainWindow extends JFrame {
         JPanel center = new JPanel(new GridLayout(4, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // ✔ Everyone (guest included) can search flights
+        // Everyone can search flights
         btnSearchFlights = new JButton("Search Flights");
-        btnSearchFlights.setEnabled(true);
         btnSearchFlights.addActionListener(e ->
-                new FlightSearchDialog(this, flightDAO).setVisible(true)
+            new FlightSearchDialog(this, flightController).setVisible(true)
         );
 
-        // ⭐ Customer-only: Book flights
+        //
+        // CUSTOMER BOOKING
+        //
         btnCustomerBook = new JButton("Book a Flight");
         btnCustomerBook.setEnabled(false);
-        btnCustomerBook.addActionListener(e ->
-                new CustomerFlightListDialog(this, flightDAO, bookingController).setVisible(true)
-        );
+        btnCustomerBook.addActionListener(e -> {
+            if (currentUser instanceof Customer customer) {
+                new CustomerFlightListDialog(
+                        this,
+                        flightController,
+                        bookingController,
+                        customer
+                ).setVisible(true);
+            }
+        });
 
-        // ⭐ Agent-only: Agent Panel
+        //
+        // AGENT PANEL
+        //
         btnAgentPanel = new JButton("Agent Panel");
         btnAgentPanel.setEnabled(false);
-        btnAgentPanel.addActionListener(e ->
-                new AgentMainDialog(this, session, bookingController).setVisible(true)
-        );
+        btnAgentPanel.addActionListener(e -> {
+            if (currentUser instanceof Agent agent) {
+                new AgentMainDialog(
+                        this,
+                        flightController,
+                        bookingController,
+                        agent
+                ).setVisible(true);
+            }
+        });
 
-        // ⭐ Admin-only: manage flights
+        //
+        // ADMIN PANEL
+        //
         btnAdminFlights = new JButton("Admin: Manage Flights");
         btnAdminFlights.setEnabled(false);
         btnAdminFlights.addActionListener(e ->
-                new AdminFlightManagementDialog(
-                        this,
-                        session,
-                        flightDAO,
-                        new FlightService(flightDAO)
-                ).setVisible(true)
+           {   if (currentUser instanceof Admin admin) {new AdminFlightManagementDialog(
+                    this,
+                    flightController,
+                    admin
+            ).setVisible(true);}} 
         );
 
         center.add(btnSearchFlights);
         center.add(btnCustomerBook);
-        center.add(btnAgentPanel);      // ⭐ ADDED HERE
+        center.add(btnAgentPanel);
         center.add(btnAdminFlights);
 
         add(center, BorderLayout.CENTER);
     }
 
     //
-    // ----- LOGIN LOGIC -----
+    // ===== LOGIN LOGIC =====
     //
     private void doLogin() {
         LoginDialog dialog = new LoginDialog(this);
         String email = dialog.showDialog();
-        if (email == null || email.isBlank()) return;
+
+        if (email == null || email.isBlank())
+            return;
 
         try {
             User user = authController.loginByEmail(email.trim());
 
             if (user == null) {
-                JOptionPane.showMessageDialog(this, "No user found for email: " + email);
-            } else {
-                lblCurrentUser.setText("<html>Logged in as:<br>" + user + "</html>");
-                updateUIBasedOnRole();
+                JOptionPane.showMessageDialog(this, "No user found for: " + email);
+                return;
             }
+
+            this.currentUser = user;
+
+            lblCurrentUser.setText("<html>Logged in as:<br>" + user + "</html>");
+
+            updateUIByRole();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -145,28 +163,21 @@ public class MainWindow extends JFrame {
     }
 
     //
-    // ----- ROLE-BASED UI -----
+    // ===== ROLE-BASED UI =====
     //
-    private void updateUIBasedOnRole() {
-        User user = session.getCurrentUser();
+    private void updateUIByRole() {
 
-        // ✔ Everyone can search flights
         btnSearchFlights.setEnabled(true);
 
-        if (user == null) {
+        if (currentUser == null) {
             btnCustomerBook.setEnabled(false);
             btnAgentPanel.setEnabled(false);
             btnAdminFlights.setEnabled(false);
             return;
         }
 
-        // ⭐ Customers can book flights
-        btnCustomerBook.setEnabled(user.isCustomer());
-
-        // ⭐ Agents get Agent Panel
-        btnAgentPanel.setEnabled(user.isAgent());
-
-        // ⭐ Admins can manage flights
-        btnAdminFlights.setEnabled(user.isAdmin());
+        btnCustomerBook.setEnabled(currentUser.isCustomer());
+        btnAgentPanel.setEnabled(currentUser.isAgent());
+        btnAdminFlights.setEnabled(currentUser.isAdmin());
     }
 }

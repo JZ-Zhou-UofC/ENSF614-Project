@@ -1,10 +1,11 @@
 package flightapp.presentation.agent;
 
-import flightapp.business.AppSession;
 import flightapp.business.controller.BookingController;
+import flightapp.business.controller.FlightController;
+import flightapp.business.domain.Agent;
+import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
-import flightapp.data.FlightDAO;
 import flightapp.presentation.general.FlightTableModel;
 
 import javax.swing.*;
@@ -14,30 +15,37 @@ import java.util.List;
 
 public class AgentBookFlightDialog extends JDialog {
 
-    private final AppSession session;
+    private final Agent agentUser;
+    private final Customer targetCustomer;
+    private final FlightController flightController;
     private final BookingController bookingController;
-    private final FlightDAO flightDAO = new FlightDAO();
 
     private JTable table;
 
-    public AgentBookFlightDialog(Window parent,
-                                 AppSession session,
-                                 BookingController bookingController) {
+    public AgentBookFlightDialog(
+            Window parent,
+            Agent agentUser,
+            Customer targetCustomer,
+            FlightController flightController,
+            BookingController bookingController
+    ) {
         super(parent, "Book Flight for Customer", ModalityType.APPLICATION_MODAL);
 
-        this.session = session;
+        this.agentUser = agentUser;
+        this.targetCustomer = targetCustomer;
+        this.flightController = flightController;
         this.bookingController = bookingController;
 
-        setSize(750, 450);
+        setSize(800, 450);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
         loadFlights();
 
-        JButton btnBook = new JButton("Book Selected");
+        JButton btnBook = new JButton("Book Selected Flight");
         JButton btnClose = new JButton("Close");
 
-        JPanel bottom = new JPanel();
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottom.add(btnBook);
         bottom.add(btnClose);
 
@@ -49,30 +57,42 @@ public class AgentBookFlightDialog extends JDialog {
 
     private void loadFlights() {
         try {
-            List<Flight> list = flightDAO.findAll();
+            List<Flight> list = flightController.getAllFlights();
             table = new JTable(new FlightTableModel(list));
             add(new JScrollPane(table), BorderLayout.CENTER);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error loading flights: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error loading flights:\n" + ex.getMessage());
         }
     }
 
     private void doBook() {
         int row = table.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a flight first.");
+            JOptionPane.showMessageDialog(this, "Please select a flight.");
             return;
         }
 
         Flight flight = ((FlightTableModel) table.getModel()).getFlightAt(row);
 
         try {
-            Reservation r = bookingController.book(flight, 1);
+            Reservation r = bookingController.bookForAgent(
+                    agentUser,
+                    targetCustomer,
+                    flight,
+                    1
+            );
+
             JOptionPane.showMessageDialog(this,
-                    "Flight booked for customer!\nReservation ID: " + r.getId());
+                    "Booking successful!\nReservation ID: " + r.getId(),
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+
             dispose();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error booking: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error booking flight:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
