@@ -1,0 +1,12 @@
+-- Admin
+INSERT INTO users (name, email, role) VALUES
+('Alice Admin', 'admin@example.com', 'ADMIN');
+
+-- Agent
+INSERT INTO users (name, email, role) VALUES
+('Bob Agent', 'agent@example.com', 'AGENT');
+
+-- Customers
+INSERT INTO users (name, email, role, phone) VALUES
+('Charlie Customer', 'customer1@example.com', 'CUSTOMER', '4031112222'),
+('Diana Customer', 'customer2@example.com', 'CUSTOMER', '4033334444');

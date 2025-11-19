@@ -14,8 +14,8 @@ public class FlightDAO {
         List<Flight> result = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 result.add(mapRow(rs));
@@ -27,11 +27,12 @@ public class FlightDAO {
     public Flight findById(int id) throws SQLException {
         String sql = "SELECT * FROM flights WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+                if (!rs.next())
+                    return null;
                 return mapRow(rs);
             }
         }
@@ -39,13 +40,13 @@ public class FlightDAO {
 
     public Flight update(Flight f) throws SQLException {
         String sql = """
-            UPDATE flights SET
-              origin = ?, destination = ?, departure_time = ?, arrival_time = ?,
-              price = ?, seats_available = ?
-            WHERE id = ?
-            """;
+                UPDATE flights SET
+                  origin = ?, destination = ?, departure_time = ?, arrival_time = ?,
+                  price = ?, seats_available = ?
+                WHERE id = ?
+                """;
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, f.getOrigin());
             ps.setString(2, f.getDestination());
@@ -74,4 +75,29 @@ public class FlightDAO {
         f.setSeatsAvailable(rs.getInt("seats_available"));
         return f;
     }
+
+    public List<Flight> searchFlights(String origin, String destination) throws SQLException {
+        String sql = """
+                SELECT * FROM flights
+                WHERE origin LIKE ? AND destination LIKE ?
+                """;
+
+        List<Flight> result = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, (origin == null || origin.isBlank()) ? "%" : origin + "%");
+            ps.setString(2, (destination == null || destination.isBlank()) ? "%" : destination + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(mapRow(rs));
+                }
+            }
+        }
+
+        return result;
+    }
+
 }
