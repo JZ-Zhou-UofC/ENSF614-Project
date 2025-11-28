@@ -4,6 +4,7 @@ public class Customer extends User {
 
     private String phone;
     private boolean subscribed;
+    private PaymentMethod paymentMethod;
 
     public Customer() {}
 
@@ -39,6 +40,10 @@ public class Customer extends User {
 
     public void setSubscribed(boolean subscribed) { this.subscribed = subscribed; }
 
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+
     @Override
     public String toString() {
         return "Customer{" +
@@ -48,6 +53,7 @@ public class Customer extends User {
                ", email='" + email + '\'' +
                ", phone='" + phone + '\'' +
                ", subscribed=" + subscribed +
+               ", paymentMethod=" + (paymentMethod != null ? paymentMethod.toString() : "null") +
                '}';
     }
 }
