@@ -49,7 +49,7 @@ public class Reservation {
     public String toString() {
         return "Reservation{" +
                "id=" + id +
-               ", customer=" + (customer != null ? customer.getName() : "null") +
+               ", customer=" + (customer != null ? customer.getFirstName() + " " + customer.getLastName() : "null") +
                ", flight=" + (flight != null ? flight.getId() : -1) +
                ", seatCount=" + seatCount +
                ", bookedAt=" + bookedAt +

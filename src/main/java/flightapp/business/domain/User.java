@@ -6,14 +6,16 @@ package flightapp.business.domain;
 public abstract class User {
 
     protected int id;
-    protected String name;
+    protected String firstName;
+    protected String lastName;
     protected String email;
 
     protected User() {}
 
-    protected User(int id, String name, String email) {
+    protected User(int id, String firstName, String lastName, String email) {
         this.id = id;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
     }
 
@@ -21,9 +23,13 @@ public abstract class User {
 
     public void setId(int id) { this.id = id; }
 
-    public String getName() { return name; }
+    public String getFirstName() { return firstName; }
 
-    public void setName(String name) { this.name = name; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
     public String getEmail() { return email; }
 
@@ -37,7 +43,8 @@ public abstract class User {
     public String toString() {
         return getClass().getSimpleName() + "{" +
                "id=" + id +
-               ", name='" + name + '\'' +
+               ", firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
                ", email='" + email + '\'' +
                '}';
     }

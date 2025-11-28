@@ -7,7 +7,7 @@ import java.util.List;
 
 public class AgentCustomerTableModel extends AbstractTableModel {
 
-    private final String[] columns = { "ID", "Name", "Email", "Phone" };
+    private final String[] columns = { "ID", "First Name", "Last Name", "Email", "Phone" };
     private final List<Customer> customers;
 
     public AgentCustomerTableModel(List<Customer> customers) {
@@ -35,9 +35,10 @@ public class AgentCustomerTableModel extends AbstractTableModel {
 
         return switch (columnIndex) {
             case 0 -> c.getId();
-            case 1 -> c.getName();
-            case 2 -> c.getEmail();
-            case 3 -> c.getPhone();
+            case 1 -> c.getFirstName();
+            case 2 -> c.getLastName();
+            case 3 -> c.getEmail();
+            case 4 -> c.getPhone();
             default -> null;
         };
     }

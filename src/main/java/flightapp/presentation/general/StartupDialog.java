@@ -1,16 +1,23 @@
 package flightapp.presentation.general;
 
+import flightapp.business.controller.AuthController;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class StartupDialog extends JDialog {
 
-    public enum RunMode { CUSTOMER, AGENT, ADMIN }
+    public enum RunMode {
+        CUSTOMER, AGENT, ADMIN
+    }
 
     private RunMode selectedMode = null;
 
-    public StartupDialog(JFrame parent) {
+    private final AuthController authController;
+
+    public StartupDialog(JFrame parent, AuthController authController) {
         super(parent, "Welcome to FlightApp", true);
+        this.authController = authController;
         initUI();
     }
 
@@ -47,7 +54,7 @@ public class StartupDialog extends JDialog {
         JButton btnSignUp = new JButton("Sign Up");
 
         btnSignUp.addActionListener(e -> {
-            new SignUpDialog((JFrame) getParent()).setVisible(true);
+            new SignUpDialog((JFrame) getParent(), authController).setVisible(true);
         });
 
         signupRow.add(btnSignUp);

@@ -6,13 +6,13 @@ public class Customer extends User {
 
     public Customer() {}
 
-    public Customer(int id, String name, String email, String phone) {
-        super(id, name, email);
+    public Customer(int id, String firstName, String lastName, String email, String phone) {
+        super(id, firstName, lastName, email);
         this.phone = phone;
     }
 
-    public Customer(String name, String email, String phone) {
-        super(0, name, email);
+    public Customer(String firstName, String lastName, String email, String phone) {
+        super(0, firstName, lastName, email);
         this.phone = phone;
     }
 
@@ -24,7 +24,8 @@ public class Customer extends User {
     public String toString() {
         return "Customer{" +
                "id=" + id +
-               ", name='" + name + '\'' +
+               ", firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
                ", email='" + email + '\'' +
                ", phone='" + phone + '\'' +
                '}';

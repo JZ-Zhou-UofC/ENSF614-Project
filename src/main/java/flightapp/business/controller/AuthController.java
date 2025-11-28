@@ -24,6 +24,14 @@ public class AuthController {
      * Let MainWindow set currentUser itself.
      */
     public User loginByEmail(String email) throws SQLException {
-        return userDAO.findByEmail(email);  // no AppSession anymore
+        return userDAO.findByEmail(email); // no AppSession anymore
     }
+
+    public User register(String firstName, String lastName, String email) throws SQLException {
+        if (userDAO.findByEmail(email) != null) {
+            throw new SQLException("Email already exists.");
+        }
+        return userDAO.registerCustomer(firstName, lastName, email);
+    }
+
 }

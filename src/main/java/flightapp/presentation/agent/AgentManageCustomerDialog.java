@@ -42,7 +42,7 @@ public class AgentManageCustomerDialog extends JDialog {
         setLayout(new BorderLayout(10, 10));
 
         JLabel title = new JLabel(
-                "<html><h2>Managing Customer: " + targetCustomer.getName() +
+                "<html><h2>Managing Customer: " + targetCustomer.getFirstName() + " " + targetCustomer.getLastName() +
                         " &nbsp;(ID: " + targetCustomer.getId() + ")</h2></html>"
         );
         add(title, BorderLayout.NORTH);
