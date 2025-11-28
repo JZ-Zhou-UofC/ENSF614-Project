@@ -1,21 +1,29 @@
--- =========================
--- Admin
--- =========================
-INSERT INTO users (first_name, last_name, email, role)
-VALUES
-('Alice', 'Admin', 'admin@example.com', 'ADMIN');
+USE flightdb;
 
 -- =========================
--- Agent
+-- ✅ Ensure subscribed allows NULL
 -- =========================
-INSERT INTO users (first_name, last_name, email, role)
-VALUES
-('Bob', 'Agent', 'agent@example.com', 'AGENT');
+ALTER TABLE users
+MODIFY subscribed BOOLEAN NULL DEFAULT NULL;
 
 -- =========================
--- Customers
+-- ✅ Admin (subscribed = NULL)
 -- =========================
-INSERT INTO users (first_name, last_name, email, role, phone)
+INSERT INTO users (first_name, last_name, email, role, subscribed)
 VALUES
-('Charlie', 'Customer', 'customer1@example.com', 'CUSTOMER', '4031112222'),
-('Diana', 'Customer', 'customer2@example.com', 'CUSTOMER', '4033334444');
+('Alice', 'Admin', 'admin@example.com', 'ADMIN', NULL);
+
+-- =========================
+-- ✅ Agent (subscribed = NULL)
+-- =========================
+INSERT INTO users (first_name, last_name, email, role, subscribed)
+VALUES
+('Bob', 'Agent', 'agent@example.com', 'AGENT', NULL);
+
+-- =========================
+-- ✅ Customers (subscribed = TRUE / FALSE)
+-- =========================
+INSERT INTO users (first_name, last_name, email, role, phone, subscribed)
+VALUES
+('Charlie', 'Customer', 'customer1@example.com', 'CUSTOMER', '4031112222', TRUE),
+('Diana', 'Customer', 'customer2@example.com', 'CUSTOMER', '4033334444', FALSE);

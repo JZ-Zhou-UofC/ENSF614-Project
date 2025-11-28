@@ -27,11 +27,11 @@ public class AuthController {
         return userDAO.findByEmail(email); // no AppSession anymore
     }
 
-    public User register(String firstName, String lastName, String email) throws SQLException {
+    public User register(String firstName, String lastName, String email, boolean subscribed) throws SQLException {
         if (userDAO.findByEmail(email) != null) {
             throw new SQLException("Email already exists.");
         }
-        return userDAO.registerCustomer(firstName, lastName, email);
+        return userDAO.registerCustomer(firstName, lastName, email, subscribed);
     }
 
 }

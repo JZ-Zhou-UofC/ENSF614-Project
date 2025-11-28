@@ -12,6 +12,7 @@ public class SignUpDialog extends JDialog {
     private JTextField txtLastName;
     private JTextField txtEmail;
     private JTextField txtRole;   // ✅ SHOWN but NOT editable
+    private JCheckBox chkSubscribe;
 
     private boolean success = false;
 
@@ -25,11 +26,11 @@ public class SignUpDialog extends JDialog {
     }
 
     private void initUI() {
-        setSize(350, 300);
+        setSize(350, 350);
         setLocationRelativeTo(getParent());
         setLayout(new BorderLayout(10, 10));
 
-        JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
         form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
         // ---------------- First Name ----------------
@@ -53,6 +54,11 @@ public class SignUpDialog extends JDialog {
         txtRole.setEditable(false);                 // ✅ cannot change
         txtRole.setBackground(Color.LIGHT_GRAY);
         form.add(txtRole);
+
+        // ---------------- Subscribe to Monthly Promotions ----------------
+        form.add(new JLabel("Subscribe:"));
+        chkSubscribe = new JCheckBox("Monthly Promotions");
+        form.add(chkSubscribe);
 
         // ---------------- Buttons ----------------
         JButton btnSignUp = new JButton("Create Account");
@@ -95,9 +101,10 @@ public class SignUpDialog extends JDialog {
             return;
         }
 
-        // ---------------- REAL DB INSERT ----------------
+        // ---------------- REAL DB INSERT ---------------- 
         try {
-            authController.register(firstName, lastName, email);
+            boolean subscribed = chkSubscribe.isSelected();
+            authController.register(firstName, lastName, email, subscribed);
 
             JOptionPane.showMessageDialog(
                     this,

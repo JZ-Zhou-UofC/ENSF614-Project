@@ -15,8 +15,11 @@ CREATE TABLE users (
 
     role ENUM('CUSTOMER', 'AGENT', 'ADMIN') NOT NULL,
 
-    phone VARCHAR(20)
+    phone VARCHAR(20),
+
+    subscribed BOOLEAN
 );
+
 
 -- =========================
 -- ✅ FLIGHTS TABLE
