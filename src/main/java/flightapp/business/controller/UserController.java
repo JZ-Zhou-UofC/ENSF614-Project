@@ -5,17 +5,17 @@ import flightapp.data.UserDAO;
 
 import java.sql.SQLException;
 
-public class AuthController {
+public class UserController {
 
     private final UserDAO userDAO;
 
     // ⭐ Controller creates its own DAO
-    public AuthController() {
+    public UserController() {
         this.userDAO = new UserDAO();
     }
 
     // ⭐ Optional constructor for testing or overriding dependency
-    public AuthController(UserDAO userDAO) {
+    public UserController(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
@@ -24,6 +24,14 @@ public class AuthController {
      * Let MainWindow set currentUser itself.
      */
     public User loginByEmail(String email) throws SQLException {
-        return userDAO.findByEmail(email);  // no AppSession anymore
+        return userDAO.findByEmail(email); // no AppSession anymore
     }
+
+    public User register(String firstName, String lastName, String email, boolean subscribed) throws SQLException {
+        if (userDAO.findByEmail(email) != null) {
+            throw new SQLException("Email already exists.");
+        }
+        return userDAO.registerCustomer(firstName, lastName, email, subscribed);
+    }
+
 }

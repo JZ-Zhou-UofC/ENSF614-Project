@@ -1,42 +1,88 @@
+DROP DATABASE IF EXISTS flightdb;
+CREATE DATABASE flightdb;
 USE flightdb;
 
+-- =========================
+-- ✅ USERS TABLE (UPDATED)
+-- =========================
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+
+    first_name VARCHAR(50) NOT NULL,
+    last_name  VARCHAR(50) NOT NULL,
+
     email VARCHAR(100) UNIQUE NOT NULL,
+
     role ENUM('CUSTOMER', 'AGENT', 'ADMIN') NOT NULL,
-    phone VARCHAR(20)
+
+    phone VARCHAR(20),
+
+    subscribed BOOLEAN
 );
 
+
+-- =========================
+-- ✅ FLIGHTS TABLE
+-- =========================
 CREATE TABLE flights (
     id INT AUTO_INCREMENT PRIMARY KEY,
+
     origin VARCHAR(50) NOT NULL,
     destination VARCHAR(50) NOT NULL,
+
     departure_time DATETIME,
     arrival_time DATETIME,
+
     price DECIMAL(10,2),
     seats_available INT DEFAULT 50,
-    
+
     last_modified_at DATETIME,
     last_modified_by_user_id INT,
-    
+
     FOREIGN KEY (last_modified_by_user_id) REFERENCES users(id)
 );
 
+-- =========================
+-- ✅ RESERVATIONS TABLE
+-- =========================
 CREATE TABLE reservations (
     id INT AUTO_INCREMENT PRIMARY KEY,
+
     customer_id INT NOT NULL,
     flight_id INT NOT NULL,
     seat_count INT NOT NULL,
-    
+
     booked_at DATETIME,
     modified_at DATETIME,
-    
+
     booked_by_user_id INT,
     modified_by_user_id INT,
-    
+
     FOREIGN KEY (customer_id) REFERENCES users(id),
     FOREIGN KEY (flight_id) REFERENCES flights(id),
     FOREIGN KEY (booked_by_user_id) REFERENCES users(id),
     FOREIGN KEY (modified_by_user_id) REFERENCES users(id)
+);
+
+-- =========================
+-- ✅ PROMOTIONS TABLE
+-- =========================
+CREATE TABLE promotions (
+    promotion_id INT AUTO_INCREMENT PRIMARY KEY,
+
+    creator_id INT NOT NULL,
+    customer_id INT NOT NULL,
+
+    content TEXT NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_creator
+        FOREIGN KEY (creator_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
 );

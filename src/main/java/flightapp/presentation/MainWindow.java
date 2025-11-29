@@ -1,8 +1,9 @@
 package flightapp.presentation;
 
-import flightapp.business.controller.AuthController;
+import flightapp.business.controller.UserController;
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
+import flightapp.business.controller.PromotionController;
 
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Agent;
@@ -14,7 +15,7 @@ import flightapp.presentation.agent.AgentMainDialog;
 import flightapp.presentation.customer.CustomerFlightListDialog;
 import flightapp.presentation.general.FlightSearchDialog;
 import flightapp.presentation.general.LoginDialog;
-import flightapp.presentation.general.SignUpDialog;
+
 import flightapp.presentation.general.StartupDialog;
 
 import javax.swing.*;
@@ -29,9 +30,10 @@ public class MainWindow extends JFrame {
     private StartupDialog.RunMode runMode;
 
     // Controllers
-    private final AuthController authController;
+    private final UserController userController;
     private final BookingController bookingController;
     private final FlightController flightController;
+    private final PromotionController promotionController;
 
     // UI
     private final JLabel lblCurrentUser = new JLabel();
@@ -42,8 +44,9 @@ public class MainWindow extends JFrame {
         super("FlightApp");
 
         this.flightController = new FlightController();
-        this.authController = new AuthController();
+        this.userController = new UserController();
         this.bookingController = new BookingController();
+        this.promotionController = new PromotionController();
 
         // ✅ Custom first screen with:
         // [Customer] [Agent] [Admin]
@@ -59,7 +62,7 @@ public class MainWindow extends JFrame {
     // ======================================================
     private void initStartupFlow() {
 
-        StartupDialog startup = new StartupDialog(this);
+        StartupDialog startup = new StartupDialog(this, userController);
         startup.setVisible(true);
 
         runMode = startup.getSelectedMode();
@@ -87,7 +90,7 @@ public class MainWindow extends JFrame {
         }
 
         try {
-            User user = authController.loginByEmail(email.trim());
+            User user = userController.loginByEmail(email.trim());
 
             if (user == null) {
                 JOptionPane.showMessageDialog(this, "Invalid login.");
@@ -189,6 +192,7 @@ public class MainWindow extends JFrame {
                             this,
                             flightController,
                             bookingController,
+                            promotionController,
                             agent
                     ).setVisible(true)
             );

@@ -9,7 +9,7 @@ import java.util.List;
 public class UserDAO {
 
     public User findByEmail(String email) throws SQLException {
-        String sql = "SELECT id, name, email, role, phone FROM users WHERE email = ?";
+        String sql = "SELECT id, first_name, last_name, email, role, phone, subscribed FROM users WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -19,14 +19,18 @@ public class UserDAO {
                     return null;
 
                 int id = rs.getInt("id");
-                String name = rs.getString("name");
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
                 String role = rs.getString("role");
                 String phone = rs.getString("phone");
 
                 return switch (role) {
-                    case "CUSTOMER" -> new Customer(id, name, email, phone);
-                    case "AGENT" -> new Agent(id, name, email);
-                    case "ADMIN" -> new Admin(id, name, email);
+                    case "CUSTOMER" -> {
+                        boolean subscribed = rs.getBoolean("subscribed");
+                        yield new Customer(id, firstName, lastName, email, phone, subscribed);
+                    }
+                    case "AGENT" -> new Agent(id, firstName, lastName, email);
+                    case "ADMIN" -> new Admin(id, firstName, lastName, email);
                     default -> null;
                 };
             }
@@ -34,7 +38,7 @@ public class UserDAO {
     }
 
     public List<Customer> findAllCustomers() throws SQLException {
-        String sql = "SELECT id, name, email, phone FROM users WHERE role = 'CUSTOMER'";
+        String sql = "SELECT id, first_name, last_name, email, phone, subscribed FROM users WHERE role = 'CUSTOMER'";
         List<Customer> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
@@ -44,13 +48,56 @@ public class UserDAO {
             while (rs.next()) {
                 Customer c = new Customer();
                 c.setId(rs.getInt("id"));
-                c.setName(rs.getString("name"));
+                c.setFirstName(rs.getString("first_name"));
+                c.setLastName(rs.getString("last_name"));
                 c.setEmail(rs.getString("email"));
                 c.setPhone(rs.getString("phone"));
+                c.setSubscribed(rs.getBoolean("subscribed"));
                 list.add(c);
             }
         }
 
         return list;
     }
+
+    public User registerCustomer(String firstName, String lastName, String email, boolean subscribed) throws SQLException {
+
+        String sql = """
+                    INSERT INTO users (first_name, last_name, email, role, subscribed)
+                    VALUES (?, ?, ?, 'CUSTOMER', ?)
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setString(3, email);
+            ps.setBoolean(4, subscribed);
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+
+                    return new Customer(
+                            id,
+                            firstName,
+                            lastName,
+                            email,
+                            null, // phone is optional
+                            subscribed
+                    );
+                } else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
+        }
+    }
+
 }
