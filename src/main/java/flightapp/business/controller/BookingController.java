@@ -1,6 +1,9 @@
 package flightapp.business.controller;
 
 import flightapp.business.domain.*;
+
+import flightapp.util.SystemLogger;
+
 import flightapp.data.FlightDAO;
 import flightapp.data.ReservationDAO;
 
@@ -34,24 +37,47 @@ public class BookingController {
         Objects.requireNonNull(customer);
         Objects.requireNonNull(flight);
 
-        validateSeatAvailability(flight, seatCount);
+        SystemLogger.logBusinessOperation(
+            SystemLogger.SystemStatus.INFO,
+            "BOOK_FLIGHT",
+            String.format("User %d booking %d seats on flight %d for customer %d", 
+                performer.getId(), seatCount, flight.getId(), customer.getId())
+        );
 
-        Reservation reservation = new Reservation();
-        reservation.setCustomer(customer);
-        reservation.setFlight(flight);
-        reservation.setSeatCount(seatCount);
-        reservation.setBookedAt(LocalDateTime.now());
-        reservation.setBookedByUserId(performer.getId());
+        try {
+            validateSeatAvailability(flight, seatCount);
 
-        Reservation saved = reservationDAO.insert(reservation);
+            Reservation reservation = new Reservation();
+            reservation.setCustomer(customer);
+            reservation.setFlight(flight);
+            reservation.setSeatCount(seatCount);
+            reservation.setBookedAt(LocalDateTime.now());
+            reservation.setBookedByUserId(performer.getId());
 
-        // Update flight seat count
-        flight.setSeatsAvailable(flight.getSeatsAvailable() - seatCount);
-        flightDAO.update(flight);
+            Reservation saved = reservationDAO.insert(reservation);
 
-        return saved;
+            // Update flight seat count
+            flight.setSeatsAvailable(flight.getSeatsAvailable() - seatCount);
+            flightDAO.update(flight);
+
+            SystemLogger.logBusinessOperation(
+                SystemLogger.SystemStatus.INFO,
+                "BOOK_FLIGHT_SUCCESS",
+                String.format("Reservation ID %d created successfully", saved.getId())
+            );
+
+            return saved;
+        } catch (SQLException | IllegalArgumentException e) {
+            SystemLogger.logBusinessOperation(
+                SystemLogger.SystemStatus.ERROR,
+                "BOOK_FLIGHT_FAILED",
+                String.format("Failed to book flight: %s", e.getMessage()),
+                e
+            );
+            throw e;
+        }
     }
-
+    
     // ------------------------------------------------------------------------
     // CUSTOMER books for themselves
     // ------------------------------------------------------------------------
@@ -92,13 +118,35 @@ public class BookingController {
     public void cancelReservation(Reservation reservation) throws SQLException {
         Objects.requireNonNull(reservation);
 
-        Flight flight = flightDAO.findById(reservation.getFlight().getId());
+        SystemLogger.logBusinessOperation(
+            SystemLogger.SystemStatus.WARN,
+            "CANCEL_RESERVATION",
+            String.format("Cancelling reservation ID %d", reservation.getId())
+        );
 
-        // restore seats
-        flight.setSeatsAvailable(flight.getSeatsAvailable() + reservation.getSeatCount());
-        flightDAO.update(flight);
+        try {
+            Flight flight = flightDAO.findById(reservation.getFlight().getId());
 
-        reservationDAO.delete(reservation.getId());
+            // restore seats
+            flight.setSeatsAvailable(flight.getSeatsAvailable() + reservation.getSeatCount());
+            flightDAO.update(flight);
+
+            reservationDAO.delete(reservation.getId());
+            
+            SystemLogger.logBusinessOperation(
+                SystemLogger.SystemStatus.INFO,
+                "CANCEL_RESERVATION_SUCCESS",
+                String.format("Reservation ID %d cancelled successfully", reservation.getId())
+            );
+        } catch (SQLException e) {
+            SystemLogger.logBusinessOperation(
+                SystemLogger.SystemStatus.ERROR,
+                "CANCEL_RESERVATION_FAILED",
+                String.format("Failed to cancel reservation ID %d: %s", reservation.getId(), e.getMessage()),
+                e
+            );
+            throw e;
+        }
     }
 
     // ------------------------------------------------------------------------

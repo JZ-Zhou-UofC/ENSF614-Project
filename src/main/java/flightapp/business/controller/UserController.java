@@ -1,5 +1,7 @@
 package flightapp.business.controller;
 
+import flightapp.util.SystemLogger;
+
 import flightapp.business.domain.User;
 import flightapp.data.UserDAO;
 
@@ -24,14 +26,84 @@ public class UserController {
      * Let MainWindow set currentUser itself.
      */
     public User loginByEmail(String email) throws SQLException {
-        return userDAO.findByEmail(email); // no AppSession anymore
+        SystemLogger.logUserAction(
+            SystemLogger.SystemStatus.INFO,
+            "LOGIN",
+            "ATTEMPT",
+            String.format("Login attempt for email: %s", email)
+        );
+        
+        try {
+            User user = userDAO.findByEmail(email);
+            
+            if (user != null) {
+                SystemLogger.logUserAction(
+                    SystemLogger.SystemStatus.INFO,
+                    user.getClass().getSimpleName().toUpperCase(),
+                    "LOGIN_SUCCESS",
+                    String.format("User ID %d logged in successfully", user.getId())
+                );
+            } else {
+                SystemLogger.logUserAction(
+                    SystemLogger.SystemStatus.WARN,
+                    "UNKNOWN",
+                    "LOGIN_FAILED",
+                    String.format("Login failed: email %s not found", email)
+                );
+            }
+            
+            return user;
+        } catch (SQLException e) {
+            SystemLogger.logUserAction(
+                SystemLogger.SystemStatus.ERROR,
+                "SYSTEM",
+                "LOGIN_ERROR",
+                String.format("Database error during login: %s", e.getMessage()),
+                e
+            );
+            throw e;
+        }
     }
 
     public User register(String firstName, String lastName, String email, boolean subscribed) throws SQLException {
-        if (userDAO.findByEmail(email) != null) {
-            throw new SQLException("Email already exists.");
+        SystemLogger.logUserAction(
+            SystemLogger.SystemStatus.INFO,
+            "REGISTRATION",
+            "ATTEMPT",
+            String.format("Registration attempt for email: %s", email)
+        );
+        
+        try {
+            if (userDAO.findByEmail(email) != null) {
+                SystemLogger.logUserAction(
+                    SystemLogger.SystemStatus.WARN,
+                    "REGISTRATION",
+                    "FAILED",
+                    String.format("Registration failed: email %s already exists", email)
+                );
+                throw new SQLException("Email already exists.");
+            }
+            
+            User newUser = userDAO.registerCustomer(firstName, lastName, email, subscribed);
+            
+            SystemLogger.logUserAction(
+                SystemLogger.SystemStatus.INFO,
+                "REGISTRATION",
+                "SUCCESS",
+                String.format("User ID %d registered successfully with email: %s", newUser.getId(), email)
+            );
+            
+            return newUser;
+        } catch (SQLException e) {
+            SystemLogger.logUserAction(
+                SystemLogger.SystemStatus.ERROR,
+                "REGISTRATION",
+                "ERROR",
+                String.format("Database error during registration: %s", e.getMessage()),
+                e
+            );
+            throw e;
         }
-        return userDAO.registerCustomer(firstName, lastName, email, subscribed);
     }
 
 }
