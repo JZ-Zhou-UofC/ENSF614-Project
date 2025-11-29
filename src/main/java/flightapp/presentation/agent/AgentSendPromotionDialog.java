@@ -10,7 +10,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Dialog for agents to compose and send monthly promotion messages to subscribed customers.
+ * Dialog for agents to compose and send monthly promotion messages to
+ * subscribed customers.
  */
 public class AgentSendPromotionDialog extends JDialog {
 
@@ -20,9 +21,9 @@ public class AgentSendPromotionDialog extends JDialog {
     private JList<String> lstSubscribers;
     private DefaultListModel<String> subscriberListModel;
 
-    public AgentSendPromotionDialog(Window parent,Agent agentUser, PromotionController promotionController) {
+    public AgentSendPromotionDialog(Window parent, Agent agentUser, PromotionController promotionController) {
         super(parent, "Send Monthly Promotion", ModalityType.APPLICATION_MODAL);
-            this.agentUser = agentUser;
+        this.agentUser = agentUser;
         this.promotionController = promotionController;
 
         setSize(650, 550);
@@ -68,18 +69,15 @@ public class AgentSendPromotionDialog extends JDialog {
         txtMessage.setWrapStyleWord(true);
         txtMessage.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLoweredBevelBorder(),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         // Default message template
         txtMessage.setText(
                 "Dear Valued Customer,\n\n" +
-                "We are excited to share our monthly promotions with you!\n\n" +
-                "This month, enjoy special discounts on select flights.\n\n" +
-                "Thank you for being a loyal customer!\n\n" +
-                "Best regards,\n" +
-                "FlightApp Team"
-        );
+                        "We are excited to share our monthly promotions with you!\n\n" +
+                        "This month, enjoy special discounts on select flights.\n\n" +
+                        "Best regards,\n" +
+                        "614 Group 1");
 
         JScrollPane scrollPane = new JScrollPane(txtMessage);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
@@ -117,8 +115,7 @@ public class AgentSendPromotionDialog extends JDialog {
 
             for (Customer customer : customers) {
                 subscriberListModel.addElement(
-                        customer.getFirstName() + " " + customer.getLastName()
-                );
+                        customer.getFirstName() + " " + customer.getLastName());
             }
 
             if (customers.isEmpty()) {
@@ -142,41 +139,26 @@ public class AgentSendPromotionDialog extends JDialog {
                     this,
                     "Please enter a promotion message.",
                     "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to send this promotion to all subscribed customers?",
-                "Confirm Send",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            List<String> notifiedEmails = promotionController.sendMonthlyPromotion(agentUser.getId(),message);
+            List<String> notifiedEmails = promotionController.sendMonthlyPromotion(agentUser.getId(), message);
 
             if (notifiedEmails.isEmpty()) {
                 JOptionPane.showMessageDialog(
                         this,
                         "No subscribed customers found. No promotions were sent.",
                         "No Subscribers",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(
                         this,
                         "Promotion sent successfully to " + notifiedEmails.size() + " customer(s)!\n\n" +
-                        "Emails sent to:\n" + String.join("\n", notifiedEmails),
+                                "Emails sent to:\n" + String.join("\n", notifiedEmails),
                         "Success",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 dispose();
             }
 
@@ -186,8 +168,8 @@ public class AgentSendPromotionDialog extends JDialog {
                     this,
                     "Error sending promotion: " + ex.getMessage(),
                     "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
+
 }
