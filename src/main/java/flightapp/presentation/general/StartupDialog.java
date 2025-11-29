@@ -1,6 +1,6 @@
 package flightapp.presentation.general;
 
-import flightapp.business.controller.AuthController;
+import flightapp.business.controller.UserController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,11 +13,11 @@ public class StartupDialog extends JDialog {
 
     private RunMode selectedMode = null;
 
-    private final AuthController authController;
+    private final UserController userController;
 
-    public StartupDialog(JFrame parent, AuthController authController) {
+    public StartupDialog(JFrame parent, UserController userController) {
         super(parent, "Welcome to FlightApp", true);
-        this.authController = authController;
+        this.userController = userController;
         initUI();
     }
 
@@ -54,7 +54,7 @@ public class StartupDialog extends JDialog {
         JButton btnSignUp = new JButton("Sign Up");
 
         btnSignUp.addActionListener(e -> {
-            new SignUpDialog((JFrame) getParent(), authController).setVisible(true);
+            new SignUpDialog((JFrame) getParent(), userController).setVisible(true);
         });
 
         signupRow.add(btnSignUp);

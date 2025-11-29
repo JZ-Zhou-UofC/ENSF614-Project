@@ -1,6 +1,6 @@
 package flightapp.presentation.general;
 
-import flightapp.business.controller.AuthController;
+import flightapp.business.controller.UserController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,12 +16,12 @@ public class SignUpDialog extends JDialog {
 
     private boolean success = false;
 
-    private final AuthController authController; // ✅ Injected
+    private final UserController userController; // ✅ Injected
 
-    // ✅ UPDATED CONSTRUCTOR (AuthController injected)
-    public SignUpDialog(JFrame parent, AuthController authController) {
+    // ✅ UPDATED CONSTRUCTOR (UserController injected)
+    public SignUpDialog(JFrame parent, UserController userController) {
         super(parent, "Sign Up", true);
-        this.authController = authController;
+        this.userController = userController;
         initUI();
     }
 
@@ -104,7 +104,7 @@ public class SignUpDialog extends JDialog {
         // ---------------- REAL DB INSERT ---------------- 
         try {
             boolean subscribed = chkSubscribe.isSelected();
-            authController.register(firstName, lastName, email, subscribed);
+            userController.register(firstName, lastName, email, subscribed);
 
             JOptionPane.showMessageDialog(
                     this,

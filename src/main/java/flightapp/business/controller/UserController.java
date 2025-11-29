@@ -5,17 +5,17 @@ import flightapp.data.UserDAO;
 
 import java.sql.SQLException;
 
-public class AuthController {
+public class UserController {
 
     private final UserDAO userDAO;
 
     // ⭐ Controller creates its own DAO
-    public AuthController() {
+    public UserController() {
         this.userDAO = new UserDAO();
     }
 
     // ⭐ Optional constructor for testing or overriding dependency
-    public AuthController(UserDAO userDAO) {
+    public UserController(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
