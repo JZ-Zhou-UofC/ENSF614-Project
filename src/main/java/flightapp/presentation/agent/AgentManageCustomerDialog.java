@@ -108,7 +108,7 @@ public class AgentManageCustomerDialog extends JDialog {
     }
 
     // ---------------------------------------------------------
-    // Modify existing reservation
+    // Modify existing reservation.
     // ---------------------------------------------------------
     private void openModifyDialog() {
         int row = reservationTable.getSelectedRow();
