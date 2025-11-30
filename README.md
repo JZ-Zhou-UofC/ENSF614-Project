@@ -14,3 +14,53 @@ sql/populate_db_in_one_sql.sql here is the script to populate the db with exampl
 
 ## 3. Install Maven and run:
 `mvn clean compile exec:java`
+
+
+---
+# Design Patterns & Architecture
+
+This project applies multiple software design patterns and follows a structured architecture to ensure scalability, maintainability, and clear separation of concerns.
+
+## Observer Pattern
+
+Used in the **monthly promotion system**.  
+- **Subject:** `PromotionController`  
+- **Observer Interface:** `PromotionObserver`  
+- **Concrete Observer:** `CustomerPromotionObserver` (wraps `Customer`)  
+
+When an agent sends a promotion, all subscribed customers are automatically notified through the `update()` method.
+
+
+## MVC (Model-View-Controller)
+
+The application follows a three-layer MVC architecture:
+
+- **Model:** Domain classes in `business/domain/`  
+  (e.g., `User`, `Customer`, `Flight`, `Reservation`)
+- **View:** UI layer in `presentation/`  
+  (Java Swing dialogs and windows)
+- **Controller:** Business logic in `business/controller/`  
+  (e.g., `UserController`, `BookingController`, `FlightController`, `PromotionController`)
+
+## DAO (Data Access Object)
+
+Database access is abstracted using DAO classes in `data/` such as:
+- `UserDAO`
+- `FlightDAO`
+- `ReservationDAO`
+
+This separates database operations from business logic and improves maintainability.
+
+## Singleton
+
+`DBConnection` follows the **Singleton Pattern** to ensure only one database connection instance exists across the application.
+
+
+## Inheritance & Polymorphism
+
+`User` is an abstract base class extended by:
+- `Customer`
+- `Agent`
+- `Admin`
+- `Guest`
+
