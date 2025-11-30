@@ -1,8 +1,6 @@
 package flightapp.data;
 
-import flightapp.business.domain.Customer;
-import flightapp.business.domain.Flight;
-import flightapp.business.domain.Reservation;
+import flightapp.business.domain.*;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -11,64 +9,72 @@ import java.util.List;
 
 public class ReservationDAO {
 
-    // ---------------------------------------------------------
-    // INSERT NEW RESERVATION
-    // ---------------------------------------------------------
+    private final UserDAO userDAO = new UserDAO();
+    private final FlightDAO flightDAO = new FlightDAO();
+    private final FlightSeatDAO flightSeatDAO = new FlightSeatDAO();
+
+
     public Reservation insert(Reservation r) throws SQLException {
+
         String sql = """
-                INSERT INTO reservations
-                  (customer_id, flight_id, seat_count, booked_at, booked_by_user_id)
-                  VALUES (?, ?, ?, ?, ?)
-                """;
+            INSERT INTO reservations (
+                customer_id, flight_id, flight_seat_id,
+                booked_at, booked_by_user_id
+            ) VALUES (?, ?, ?, ?, ?)
+            """;
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, r.getCustomer().getId());
             ps.setInt(2, r.getFlight().getId());
-            ps.setInt(3, r.getSeatCount());
-
-            // booked_at
-            LocalDateTime bookedAt = r.getBookedAt() != null
-                    ? r.getBookedAt()
-                    : LocalDateTime.now();
-            ps.setTimestamp(4, Timestamp.valueOf(bookedAt));
-
-            // booked_by_user_id
+            ps.setInt(3, r.getFlightSeat().getId());
+            ps.setTimestamp(4, Timestamp.valueOf(r.getBookedAt()));
             ps.setInt(5, r.getBookedByUserId());
 
             ps.executeUpdate();
 
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (keys.next()) {
-                    r.setId(keys.getInt(1));
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    r.setId(rs.getInt(1));
                 }
             }
         }
+
         return r;
     }
 
-    // ---------------------------------------------------------
-    // UPDATE RESERVATION (change seat count or flight)
-    // ---------------------------------------------------------
+
     public Reservation update(Reservation r) throws SQLException {
+
         String sql = """
-                UPDATE reservations SET
-                  flight_id = ?,
-                  seat_count = ?,
-                  modified_at = ?,
-                  modified_by_user_id = ?
-                WHERE id = ?
-                """;
+            UPDATE reservations SET
+                customer_id = ?, 
+                flight_id = ?, 
+                flight_seat_id = ?, 
+                booked_at = ?, 
+                modified_at = ?, 
+                booked_by_user_id = ?, 
+                modified_by_user_id = ?
+            WHERE id = ?
+            """;
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, r.getFlight().getId());
-            ps.setInt(2, r.getSeatCount());
-            ps.setTimestamp(3, r.getModifiedAt() != null ? Timestamp.valueOf(r.getModifiedAt()) : null);
-            ps.setObject(4, r.getModifiedByUserId());
-            ps.setInt(5, r.getId());
+            ps.setInt(1, r.getCustomer().getId());
+            ps.setInt(2, r.getFlight().getId());
+            ps.setInt(3, r.getFlightSeat().getId());
+            ps.setTimestamp(4, Timestamp.valueOf(r.getBookedAt()));
+
+            if (r.getModifiedAt() != null)
+                ps.setTimestamp(5, Timestamp.valueOf(r.getModifiedAt()));
+            else
+                ps.setNull(5, Types.TIMESTAMP);
+
+            ps.setObject(6, r.getBookedByUserId(), Types.INTEGER);
+            ps.setObject(7, r.getModifiedByUserId(), Types.INTEGER);
+            ps.setInt(8, r.getId());
 
             ps.executeUpdate();
         }
@@ -76,74 +82,62 @@ public class ReservationDAO {
         return r;
     }
 
-    // ---------------------------------------------------------
-    // FIND ALL RESERVATIONS OF A CUSTOMER
-    // ---------------------------------------------------------
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM reservations WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
+    // Delete by flight (for admin deleting flight)
+    public void deleteByFlight(int flightId) throws SQLException {
+        String sql = "DELETE FROM reservations WHERE flight_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, flightId);
+            ps.executeUpdate();
+        }
+    }
+
+
+    public Reservation findById(int id) throws SQLException {
+        String sql = "SELECT * FROM reservations WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     public List<Reservation> findByCustomer(int customerId) throws SQLException {
-        String sql = """
-                SELECT r.id             AS res_id,
-                       r.seat_count     AS res_seat_count,
-                       r.booked_at      AS res_booked_at,
-                       r.booked_by_user_id,
 
-                       f.id             AS f_id,
-                       f.origin,
-                       f.destination,
-                       f.departure_time,
-                       f.arrival_time,
-                       f.price,
-                       f.seats_available
-                FROM reservations r
-                JOIN flights f ON r.flight_id = f.id
-                WHERE r.customer_id = ?
-                ORDER BY f.departure_time
-                """;
-
+        String sql = "SELECT * FROM reservations WHERE customer_id = ?";
         List<Reservation> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, customerId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-
-                    // ---------------------
-                    // Build Flight object
-                    // ---------------------
-                    Flight flight = new Flight();
-                    flight.setId(rs.getInt("f_id"));
-                    flight.setOrigin(rs.getString("origin"));
-                    flight.setDestination(rs.getString("destination"));
-
-                    Timestamp dep = rs.getTimestamp("departure_time");
-                    Timestamp arr = rs.getTimestamp("arrival_time");
-
-                    flight.setDepartureTime(dep != null ? dep.toLocalDateTime() : null);
-                    flight.setArrivalTime(arr != null ? arr.toLocalDateTime() : null);
-                    flight.setPrice(rs.getDouble("price"));
-                    flight.setSeatsAvailable(rs.getInt("seats_available"));
-
-                    // ---------------------
-                    // Build Reservation object
-                    // ---------------------
-                    Reservation r = new Reservation();
-                    r.setId(rs.getInt("res_id"));
-                    r.setSeatCount(rs.getInt("res_seat_count"));
-
-                    Timestamp bookedTs = rs.getTimestamp("res_booked_at");
-                    r.setBookedAt(bookedTs != null ? bookedTs.toLocalDateTime() : null);
-
-                    r.setBookedByUserId(rs.getInt("booked_by_user_id"));
-
-                    // Attach nested objects
-                    Customer c = new Customer();
-                    c.setId(customerId);
-                    r.setCustomer(c);
-                    r.setFlight(flight);
-
-                    list.add(r);
+                    list.add(mapRow(rs));
                 }
             }
         }
@@ -151,15 +145,54 @@ public class ReservationDAO {
         return list;
     }
 
-    public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM reservations WHERE id = ?";
+
+    public List<Reservation> findByFlight(int flightId) throws SQLException {
+
+        String sql = "SELECT * FROM reservations WHERE flight_id = ?";
+        List<Reservation> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            ps.setInt(1, flightId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
         }
+
+        return list;
     }
 
+    private Reservation mapRow(ResultSet rs) throws SQLException {
+        Reservation r = new Reservation();
+
+        r.setId(rs.getInt("id"));
+
+        int customerId = rs.getInt("customer_id");
+        int flightId = rs.getInt("flight_id");
+        int flightSeatId = rs.getInt("flight_seat_id");
+
+        r.setCustomer((Customer) userDAO.findById(customerId));
+        r.setFlight(flightDAO.findById(flightId));
+        r.setFlightSeat(flightSeatDAO.findById(flightSeatId));
+
+        Timestamp booked = rs.getTimestamp("booked_at");
+        Timestamp modified = rs.getTimestamp("modified_at");
+
+        if (booked != null)
+            r.setBookedAt(booked.toLocalDateTime());
+
+        if (modified != null)
+            r.setModifiedAt(modified.toLocalDateTime());
+
+        r.setBookedByUserId((Integer) rs.getObject("booked_by_user_id"));
+        r.setModifiedByUserId((Integer) rs.getObject("modified_by_user_id"));
+
+        return r;
+    }
 }
+
+

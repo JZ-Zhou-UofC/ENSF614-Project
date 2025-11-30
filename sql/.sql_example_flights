@@ -1,8 +1,0 @@
-INSERT INTO flights (origin, destination, departure_time, arrival_time, price, seats_available)
-VALUES
-('Calgary', 'Vancouver', '2025-11-20 09:00', '2025-11-20 09:55', 149.99, 50),
-('Calgary', 'Toronto', '2025-11-21 07:30', '2025-11-21 13:20', 299.99, 40),
-('Calgary', 'Montreal', '2025-11-22 10:00', '2025-11-22 15:20', 349.99, 45),
-('Toronto', 'Calgary', '2025-11-23 14:00', '2025-11-23 16:00', 279.99, 60),
-('Vancouver', 'Calgary', '2025-11-24 08:30', '2025-11-24 11:05', 179.99, 55),
-('Edmonton', 'Calgary', '2025-11-25 12:15', '2025-11-25 13:00', 99.99, 70);

@@ -4,7 +4,9 @@ import flightapp.business.controller.BookingController;
 import flightapp.business.controller.PaymentController;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
+import flightapp.business.domain.FlightSeat;
 import flightapp.business.domain.Reservation;
+import flightapp.data.FlightSeatDAO;
 
 import flightapp.business.domain.PaymentMethod;
 
@@ -12,6 +14,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList; 
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BookingDialog extends JDialog {
 
@@ -22,9 +26,12 @@ public class BookingDialog extends JDialog {
 
     private final JSpinner seatSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
     JComboBox<String> paymentSelector; 
+    private JComboBox<String> seatDropdown;
+    private List<FlightSeat> availableSeats;
+    private final FlightSeatDAO flightSeatDAO = new FlightSeatDAO();
 
     public BookingDialog(Window owner, Customer customer, Flight flight, BookingController bookingController) {
-        super(owner, "Confirm Booking", ModalityType.APPLICATION_MODAL);
+        super(owner, "Select Seat", ModalityType.APPLICATION_MODAL);
         this.customer = customer;
         this.flight = flight;
         this.bookingController = bookingController;
@@ -51,14 +58,26 @@ public class BookingDialog extends JDialog {
 
         JTextArea txtDetails = new JTextArea(buildFlightText());
         txtDetails.setEditable(false);
-        txtDetails.setLineWrap(true);
-        txtDetails.setWrapStyleWord(true);
 
         main.add(new JScrollPane(txtDetails), BorderLayout.CENTER);
 
+        // -------- LOAD AVAILABLE SEATS --------
+        try {
+            availableSeats = flightSeatDAO.findByFlight(flight.getId())
+                    .stream().filter(fs -> !fs.isReserved())
+                    .collect(Collectors.toList());
+        } catch (SQLException e) {
+            availableSeats = List.of();
+        }
+
+        seatDropdown = new JComboBox<>();
+        for (FlightSeat fs : availableSeats) {
+            seatDropdown.addItem(fs.getSeat().getSeatLabel());
+        }
+
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        south.add(new JLabel("Seats:"));
-        south.add(seatSpinner);
+        south.add(new JLabel("Select Seat:"));
+        south.add(seatDropdown);
 
         JButton btnOk = new JButton("Confirm");
         JButton btnCancel = new JButton("Cancel");
@@ -89,12 +108,26 @@ public class BookingDialog extends JDialog {
     }
 
     private void onConfirm() {
-        int seats = (Integer) seatSpinner.getValue();
+        if (availableSeats.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No seats available!");
+            return;
+        }
+
+        String label = (String) seatDropdown.getSelectedItem();
+        FlightSeat chosen = availableSeats.stream()
+                .filter(fs -> fs.getSeat().getSeatLabel().equals(label))
+                .findFirst()
+                .orElse(null);
+
+        if (chosen == null) {
+            JOptionPane.showMessageDialog(this, "Invalid seat selection.");
+            return;
+        }
 
         try {
-            Reservation r = bookingController.bookForCustomer(customer, flight, seats);
+            Reservation r = bookingController.bookForCustomer(customer, flight, chosen.getSeat());
             JOptionPane.showMessageDialog(this,
-                    "Booking successful! Reservation ID: " + r.getId(),
+                    "Seat booked! Reservation ID: " + r.getId(),
                     "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (SQLException ex) {
@@ -102,3 +135,4 @@ public class BookingDialog extends JDialog {
         }
     }
 }
+
