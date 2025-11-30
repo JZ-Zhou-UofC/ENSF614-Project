@@ -49,8 +49,8 @@ CREATE TABLE flights (
     price DECIMAL(10,2) NOT NULL,
     seats_available INT NOT NULL,
 
-    last_modified_at DATETIME,
-    last_modified_by_user_id INT,
+    last_modified_at DATETIME NULL,
+    last_modified_by_user_id INT NULL,
 
     FOREIGN KEY (airplane_id) REFERENCES airplanes(id),
     FOREIGN KEY (last_modified_by_user_id) REFERENCES users(id)
