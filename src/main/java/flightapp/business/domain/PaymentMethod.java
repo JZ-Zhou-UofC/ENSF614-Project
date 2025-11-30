@@ -13,6 +13,8 @@ public class PaymentMethod {
     private String billingAddress;
     private String cvv; // Should be encrypted/hashed in production
 
+    private PaymentStrategy str; 
+    
     public PaymentMethod() {}
 
     public PaymentMethod(int id, String type, String cardNumber, String cardholderName, 
@@ -24,6 +26,14 @@ public class PaymentMethod {
         this.expiryDate = expiryDate;
         this.billingAddress = billingAddress;
         this.cvv = cvv;
+    }
+
+    public void setPaymentStrategy(PaymentStrategy strategy){
+        str = strategy; 
+    }
+
+    public String makePayment(){
+        return str.pay(); 
     }
 
     public PaymentMethod(String type, String cardNumber, String cardholderName, 

@@ -1,9 +1,13 @@
 package flightapp.presentation.customer;
 
 import flightapp.business.controller.BookingController;
+import flightapp.business.domain.CreditCardPayment;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
+
+import flightapp.business.domain.PaymentMethod;
+import flightapp.business.domain.PaypalPayment;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,12 +20,16 @@ public class BookingDialog extends JDialog {
     private final BookingController bookingController;
 
     private final JSpinner seatSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
+    JComboBox<String> paymentSelector; 
 
     public BookingDialog(Window owner, Customer customer, Flight flight, BookingController bookingController) {
         super(owner, "Confirm Booking", ModalityType.APPLICATION_MODAL);
         this.customer = customer;
         this.flight = flight;
         this.bookingController = bookingController;
+        // Simulate getting payment options from DB 
+        String[] paymentOptions = {"Paypal","CreditCard"}; 
+        paymentSelector = new JComboBox<>(paymentOptions);
         initUI();
     }
 
@@ -48,7 +56,7 @@ public class BookingDialog extends JDialog {
 
         south.add(btnOk);
         south.add(btnCancel);
-
+        south.add(paymentSelector); 
         main.add(south, BorderLayout.SOUTH);
 
         setContentPane(main);
@@ -70,9 +78,16 @@ public class BookingDialog extends JDialog {
         int seats = (Integer) seatSpinner.getValue();
 
         try {
+            String selectedPayment = (String) paymentSelector.getSelectedItem(); 
+            PaymentMethod p = new PaymentMethod(); 
+            if(selectedPayment.equals("CreditCard")){
+                p.setPaymentStrategy(new CreditCardPayment());
+            }else{
+                p.setPaymentStrategy(new PaypalPayment()); 
+            }
             Reservation r = bookingController.bookForCustomer(customer, flight, seats);
             JOptionPane.showMessageDialog(this,
-                    "Booking successful! Reservation ID: " + r.getId(),
+                    "Booking successful! Reservation ID: " + r.getId() + " " + p.makePayment(),
                     "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (SQLException ex) {
