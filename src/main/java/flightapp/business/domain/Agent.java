@@ -1,7 +1,10 @@
 package flightapp.business.domain;
 
-public class Agent extends User {
+import flightapp.business.domain.*;
+import flightapp.data.UserDAO;
 
+public class Agent extends User {
+	
     public Agent() {}
 
     public Agent(int id, String firstName, String lastName, String email) {

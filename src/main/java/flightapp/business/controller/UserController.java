@@ -2,6 +2,8 @@ package flightapp.business.controller;
 
 import flightapp.util.SystemLogger;
 
+import flightapp.business.domain.Agent;
+import flightapp.business.domain.Customer;
 import flightapp.business.domain.User;
 import flightapp.data.UserDAO;
 
@@ -105,5 +107,7 @@ public class UserController {
             throw e;
         }
     }
+
+
 
 }

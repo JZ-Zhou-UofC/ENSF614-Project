@@ -1,6 +1,7 @@
 package flightapp.presentation;
 
 import flightapp.business.controller.UserController;
+import flightapp.business.controller.AgentController;
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
 import flightapp.business.controller.PromotionController;
@@ -34,6 +35,7 @@ public class MainWindow extends JFrame {
     private final BookingController bookingController;
     private final FlightController flightController;
     private final PromotionController promotionController;
+    private final AgentController agentController;
 
     // UI
     private final JLabel lblCurrentUser = new JLabel();
@@ -45,6 +47,7 @@ public class MainWindow extends JFrame {
 
         this.flightController = new FlightController();
         this.userController = new UserController();
+        this.agentController = new AgentController();
         this.bookingController = new BookingController();
         this.promotionController = new PromotionController();
 
@@ -193,6 +196,8 @@ public class MainWindow extends JFrame {
                             flightController,
                             bookingController,
                             promotionController,
+                            userController,
+                            agentController,
                             agent
                     ).setVisible(true)
             );
