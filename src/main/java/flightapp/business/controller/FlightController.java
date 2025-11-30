@@ -42,24 +42,11 @@ public class FlightController {
     }
 
 
-    public Airplane createAirplane(Admin admin, Airplane airplane) throws SQLException {
-        if (admin == null)
-            throw new IllegalArgumentException("Admin cannot be null.");
-        if (airplane == null)
-            throw new IllegalArgumentException("Airplane cannot be null.");
 
-        
-        Airplane saved = airplaneDAO.save(airplane);
-
-        System.out.println("Airplane created: ID=" + saved.getId() +
-                        ", Seats=" + saved.getSeats().size());
-
-        return saved;
-    }
 
 
     public List<Airplane> findAllAvailableAirplanes() throws SQLException {
-        return airplaneDAO.findAllAvailable();
+        return airplaneDAO.findAll();
     }
 
 

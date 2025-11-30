@@ -52,23 +52,86 @@ public class AdminFlightManagementDialog extends JDialog {
 
         JButton btnRefresh = new JButton("Refresh");
         JButton btnSave = new JButton("Save Changes");
+        JButton btnCreate = new JButton("Create New Flight");
+        JButton btnDelete = new JButton("Delete Flight");
+
+
 
         btnRefresh.addActionListener(e -> loadFlights());
         btnSave.addActionListener(e -> saveSelectedRow());
+        btnCreate.addActionListener(e -> openCreateFlightDialog());
+        btnDelete.addActionListener(e -> deleteSelectedFlight());
 
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         south.add(btnRefresh);
         south.add(btnSave);
+        south.add(btnCreate);
+        south.add(btnDelete);
 
         JPanel main = new JPanel(new BorderLayout(5, 5));
         main.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         main.add(scroll, BorderLayout.CENTER);
         main.add(south, BorderLayout.SOUTH);
 
+
         setContentPane(main);
         setSize(900, 400);
         setLocationRelativeTo(getOwner());
     }
+
+    private void openCreateFlightDialog() {
+    new CreateFlightDialog(
+            this,
+            adminUser,
+            flightController
+    ).setVisible(true);
+
+    loadFlights(); // Refresh after creation
+}
+
+    private void deleteSelectedFlight() {
+        int row = table.getSelectedRow();
+
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Select a flight row to delete.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(model.getValueAt(row, 0).toString());
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete flight ID " + id + "?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            flightController.deleteFlight(adminUser, id);
+
+            JOptionPane.showMessageDialog(this,
+                    "Flight deleted successfully.",
+                    "Deleted",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            loadFlights(); // Refresh table
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to delete flight:\n" + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
     private void loadFlights() {
         model.setRowCount(0);

@@ -1,10 +1,12 @@
+
+-- This file contains the database schema as well as some pre-population of: 
+-- test users, airplanes and their seats, test flights, and test promotions
+
 DROP DATABASE IF EXISTS flightdb;
 CREATE DATABASE flightdb;
 USE flightdb;
 
--- ========================
--- USERS
--- ========================
+-- users
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -16,30 +18,35 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- populate with test users
 INSERT INTO users (first_name, last_name, email, role, phone, subscribed) VALUES
 ('John', 'Zhou', 'customer1@example.com', 'CUSTOMER', '403-111-2222', TRUE),
 ('Alice', 'Smith', 'customer2@example.com', 'CUSTOMER', '403-222-3333', TRUE),
 ('Bob', 'Agent', 'agent@example.com', 'AGENT', '403-333-4444', NULL),
 ('Admin', 'John', 'admin@example.com', 'ADMIN', '403-444-5555', NULL);
 
--- ========================
--- AIRPLANES
--- ========================
+-- airplanes
 CREATE TABLE airplanes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     model VARCHAR(100) NOT NULL,
     num_rows INT NOT NULL,
-    seat_letters VARCHAR(10) NOT NULL,
-    reserved_status BOOLEAN DEFAULT FALSE
+    seat_letters VARCHAR(10) NOT NULL
 );
 
-INSERT INTO airplanes (model, num_rows, seat_letters, reserved_status) VALUES
-('Boeing 737', 10, 'ABCDEF', FALSE),
-('Airbus A320', 8, 'ABCDEF', FALSE);
+-- populate the fleet with 10 airplanes
+INSERT INTO airplanes (model, num_rows, seat_letters) VALUES
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF'),
+('Boeing 737', 30, 'ABCDEF');
 
--- ========================
--- SEATS
--- ========================
+-- seats
 CREATE TABLE seats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     airplane_id INT NOT NULL,
@@ -51,14 +58,34 @@ CREATE TABLE seats (
         ON DELETE CASCADE
 );
 
-INSERT INTO seats (airplane_id, seat_row, seat_letter, seat_type) VALUES
-(1,1,'A','Economy'),(1,1,'B','Economy'),(1,1,'C','Economy'),(1,1,'D','Economy'),(1,1,'E','Economy'),(1,1,'F','Economy'),
-(1,2,'A','Economy'),(1,2,'B','Economy'),(1,2,'C','Economy'),(1,2,'D','Economy'),(1,2,'E','Economy'),(1,2,'F','Economy'),
-(1,3,'A','Economy'),(1,3,'B','Economy'),(1,3,'C','Economy'),(1,3,'D','Economy'),(1,3,'E','Economy'),(1,3,'F','Economy');
+-- Auto-generate seats for airplane IDs 1–10 (written by ChatGPT)
+INSERT INTO seats (airplane_id, seat_row, seat_letter, seat_type)
+SELECT
+    a.id AS airplane_id,
+    r.num AS seat_row,
+    l.letter AS seat_letter,
+    'Economy' AS seat_type
+FROM airplanes a
+CROSS JOIN (
+    SELECT 1 AS num UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL
+    SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
+    SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL
+    SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20 UNION ALL
+    SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL
+    SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30
+) r
+CROSS JOIN (
+    SELECT 'A' AS letter UNION ALL
+    SELECT 'B' UNION ALL
+    SELECT 'C' UNION ALL
+    SELECT 'D' UNION ALL
+    SELECT 'E' UNION ALL
+    SELECT 'F'
+) l
+WHERE a.model = 'Boeing 737';
 
--- ========================
--- FLIGHTS
--- ========================
+
+-- flights
 CREATE TABLE flights (
     id INT AUTO_INCREMENT PRIMARY KEY,
     airplane_id INT NOT NULL,
@@ -79,6 +106,7 @@ CREATE TABLE flights (
     FOREIGN KEY (last_modified_by_user_id) REFERENCES users(id)
 );
 
+-- populate with test flights
 INSERT INTO flights (
     airplane_id, origin, destination,
     departure_time, arrival_time,
@@ -88,9 +116,8 @@ INSERT INTO flights (
 (1, 'Calgary', 'Vancouver', '2025-02-01 08:00:00', '2025-02-01 09:10:00', 199.99, 60, NULL, NULL),
 (2, 'Toronto', 'New York', '2025-02-02 14:30:00', '2025-02-02 16:00:00', 349.99, 48, '2025-01-20 10:00:00', 3);
 
--- ========================
--- FLIGHT SEATS
--- ========================
+
+-- Fflight seats
 CREATE TABLE flight_seats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     flight_id INT NOT NULL,
@@ -108,9 +135,8 @@ INSERT INTO flight_seats (flight_id, seat_id, reserved) VALUES
 (1,1,FALSE),(1,2,FALSE),(1,3,FALSE),
 (1,4,FALSE),(1,5,FALSE),(1,6,FALSE);
 
--- ========================
--- RESERVATIONS
--- ========================
+-- 
+-- reservations
 CREATE TABLE reservations (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
@@ -132,6 +158,7 @@ CREATE TABLE reservations (
     FOREIGN KEY (modified_by_user_id) REFERENCES users(id)
 );
 
+-- populate test reservation
 INSERT INTO reservations (
     customer_id, flight_id, flight_seat_id,
     booked_at, modified_at,
@@ -139,9 +166,7 @@ INSERT INTO reservations (
 ) VALUES
 (1, 1, 1, '2025-01-25 12:00:00', NULL, 3, NULL);
 
--- ========================
--- PROMOTIONS
--- ========================
+-- promotions
 CREATE TABLE promotions (
     promotion_id INT AUTO_INCREMENT PRIMARY KEY,
 
@@ -162,6 +187,7 @@ CREATE TABLE promotions (
         ON DELETE CASCADE
 );
 
+-- populate with test promotions
 INSERT INTO promotions (creator_id, customer_id, content) VALUES
 (3, 1, '20% off your next flight!'),
 (3, 2, 'Winter travel sale – limited time!');

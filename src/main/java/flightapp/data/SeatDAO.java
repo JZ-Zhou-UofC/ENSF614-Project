@@ -111,24 +111,6 @@ public class SeatDAO {
         return seat;
     }
 
-    public void insertSeatsForAirplane(Airplane airplane) throws SQLException {
-        String sql = "INSERT INTO seats (airplane_id, seat_row, seat_letter, seat_type) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            for (int r = 1; r <= airplane.getNumRows(); r++) {
-                for (char c : airplane.getSeatLetters()) {
-                    ps.setInt(1, airplane.getId());
-                    ps.setInt(2, r);
-                    ps.setString(3, String.valueOf(c));
-                    ps.setString(4, "Economy");
-                    ps.addBatch();
-                }
-            }
-
-            ps.executeBatch();
-        }
-    }
 
 }

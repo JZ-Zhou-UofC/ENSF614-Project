@@ -29,31 +29,38 @@ public class ControllerTest {
         BookingController bookingController =
                 new BookingController(reservationDAO, flightDAO, flightSeatDAO);
 
-        // Admin performing the operations
+        // Admin performing operations (dummy admin object)
         Admin admin = new Admin(999, "Test", "Admin", "admin@test.com");
 
 
-        // create an airplane
-        System.out.println("\n--- SETUP: CREATING TEST AIRPLANE ---");
+        // 
+        // get an airplane
+        System.out.println("\n--- STEP 1: FETCH EXISTING AIRPLANE FROM DB ---");
 
-        Airplane testPlane = new Airplane();
-        testPlane.setNumRows(30);
-        testPlane.setSeatLetters(new char[]{'A','B','C','D','E','F'});
-        testPlane.setReservedStatus(false);
-
-        Airplane plane;
+        Airplane plane = null;
 
         try {
-            plane = flightController.createAirplane(admin, testPlane);
-            System.out.println("PASS: Airplane created. ID = " + plane.getId() +
-                               ", Seats = " + plane.getSeats().size());
+            List<Airplane> planes = airplaneDAO.findAll();
+            if (planes.isEmpty()) {
+                System.out.println("FAIL: No airplanes found in DB. Add airplanes first.");
+                return;
+            }
+            plane = planes.get(0);
+
+            // Load seats for airplane
+            List<Seat> seats = new SeatDAO().findByAirplaneId(plane.getId());
+            plane.setSeats(seats);
+
+            System.out.println("PASS: Found airplane ID=" + plane.getId() +
+                    ", Seats Loaded=" + seats.size());
+
         } catch (SQLException e) {
-            System.out.println("FAIL: Could not create airplane: " + e.getMessage());
+            System.out.println("FAIL: Could not fetch airplane: " + e.getMessage());
             return;
         }
 
 
-        // create a flight
+        // creaet flight
         System.out.println("\n--- TEST 1: CREATE FLIGHT ---");
 
         Flight flight = new Flight();
@@ -79,7 +86,7 @@ public class ControllerTest {
         }
 
 
-        // book a seat
+        //  book seat
         System.out.println("\n--- TEST 2: BOOK SEAT ---");
 
         // get a customer
@@ -127,7 +134,7 @@ public class ControllerTest {
         }
 
 
-        // cancel a reservation
+        // cancel reservation
         System.out.println("\n--- TEST 3: CANCEL RESERVATION ---");
 
         try {
@@ -155,8 +162,6 @@ public class ControllerTest {
         }
 
 
-        
         System.out.println("\n***** TESTING COMPLETE *****");
     }
 }
-
