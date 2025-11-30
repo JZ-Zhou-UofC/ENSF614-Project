@@ -92,3 +92,8 @@ logs/
 # Guide document.
 ###############################
 LOGGING_IMPLEMENTATION_GUIDE.md
+
+###############################
+# Drawio diagram
+###############################
+FlightBookingSystem_ClassDiagram.drawio
