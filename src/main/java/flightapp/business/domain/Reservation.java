@@ -7,11 +7,21 @@ public class Reservation {
     private int id;
     private Customer customer;
     private Flight flight;
-    private int seatCount;
+    private FlightSeat flightSeat;
     private LocalDateTime bookedAt;
     private LocalDateTime modifiedAt;
     private Integer bookedByUserId;
     private Integer modifiedByUserId;
+
+    public Reservation() {}
+
+    public Reservation(Customer customer, Flight flight, FlightSeat flightSeat, Integer bookedByUserId) {
+        this.customer = customer;
+        this.flight = flight;
+        this.flightSeat = flightSeat;
+        this.bookedByUserId = bookedByUserId;
+        this.bookedAt = LocalDateTime.now();
+    }
 
     public int getId() { return id; }
 
@@ -25,9 +35,16 @@ public class Reservation {
 
     public void setFlight(Flight flight) { this.flight = flight; }
 
-    public int getSeatCount() { return seatCount; }
+    public FlightSeat getFlightSeat() { return this.flightSeat; }
 
-    public void setSeatCount(int seatCount) { this.seatCount = seatCount; }
+    public String getSeatLabel() {
+        if (flightSeat == null || flightSeat.getSeat() == null) 
+            return null;
+
+        return flightSeat.getSeat().getSeatLabel();
+}
+
+    public void setFlightSeat(FlightSeat flightSeat) { this.flightSeat = flightSeat; }
 
     public LocalDateTime getBookedAt() { return bookedAt; }
 
@@ -51,9 +68,11 @@ public class Reservation {
                "id=" + id +
                ", customer=" + (customer != null ? customer.getFirstName() + " " + customer.getLastName() : "null") +
                ", flight=" + (flight != null ? flight.getId() : -1) +
-               ", seatCount=" + seatCount +
+               ", seat=" + getSeatLabel() +
                ", bookedAt=" + bookedAt +
                ", modifiedAt=" + modifiedAt +
                '}';
     }
+
 }
+

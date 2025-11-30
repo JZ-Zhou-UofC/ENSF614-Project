@@ -75,24 +75,16 @@ public class AgentBookFlightDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) table.getModel()).getFlightAt(row);
 
-        try {
-            Reservation r = bookingController.bookForAgent(
-                    agentUser,
-                    targetCustomer,
-                    flight,
-                    1
-            );
+        // NEW: seat selection dialog
+        new SeatSelectionDialog(
+                this,
+                agentUser,
+                targetCustomer,
+                flight,
+                bookingController
+        ).setVisible(true);
 
-            JOptionPane.showMessageDialog(this,
-                    "Booking successful!\nReservation ID: " + r.getId(),
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            dispose();
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Error booking flight:\n" + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        dispose();
     }
+
 }
