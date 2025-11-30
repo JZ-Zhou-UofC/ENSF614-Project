@@ -2,13 +2,11 @@ package flightapp.presentation.customer;
 
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.PaymentController;
-import flightapp.business.domain.CreditCardPayment;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 
 import flightapp.business.domain.PaymentMethod;
-import flightapp.business.domain.PaypalPayment;
 
 import javax.swing.*;
 import java.awt.*;
