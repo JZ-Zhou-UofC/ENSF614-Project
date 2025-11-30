@@ -9,7 +9,7 @@ import java.util.List;
 public class FlightDAO {
 
     // INSERT new flight
-    public Flight save(Flight flight) throws SQLException {
+    public Flight insert(Flight flight) throws SQLException {
         String sql = """
             INSERT INTO flights 
             (origin, destination, departure_time, arrival_time, price, seats_available,

@@ -74,7 +74,7 @@ public class FlightSeatDAO {
     }
 
 
-    public void saveAll(List<FlightSeat> seats) throws SQLException {
+    public void insertAll(List<FlightSeat> seats) throws SQLException {
         String sql = """
             INSERT INTO flight_seats (flight_id, seat_id, reserved)
             VALUES (?, ?, ?)

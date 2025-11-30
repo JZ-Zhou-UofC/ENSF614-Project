@@ -58,7 +58,7 @@ public class FlightController {
             throw new IllegalArgumentException("Flight cannot be null");
         }
 
-        Flight saved = flightDAO.save(flight);
+        Flight saved = flightDAO.insert(flight);
 
         Airplane airplane = airplaneDAO.findById(saved.getAirplaneId());
         if (airplane == null) {
@@ -72,7 +72,7 @@ public class FlightController {
                 .collect(Collectors.toList());
 
         // Save the flightSeats
-        flightSeatDAO.saveAll(flightSeats);
+        flightSeatDAO.insertAll(flightSeats);
 
         // 
         saved.setSeatsAvailable(flightSeats.size());
