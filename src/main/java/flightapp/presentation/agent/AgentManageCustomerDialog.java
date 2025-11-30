@@ -65,9 +65,7 @@ public class AgentManageCustomerDialog extends JDialog {
         btnClose.addActionListener(e -> dispose());
     }
 
-    // ---------------------------------------------------------
-    // Load reservations for this customer
-    // ---------------------------------------------------------
+    // load customer reservations
     private void loadReservations() {
         try {
             List<Reservation> list =
@@ -92,9 +90,7 @@ public class AgentManageCustomerDialog extends JDialog {
         } catch (Exception ignored) {}
     }
 
-    // ---------------------------------------------------------
-    // Book a new flight for this customer
-    // ---------------------------------------------------------
+    // book a new flight
     private void openFlightSelector() {
         new AgentBookFlightDialog(
                 this,
@@ -107,9 +103,7 @@ public class AgentManageCustomerDialog extends JDialog {
         reload();
     }
 
-    // ---------------------------------------------------------
-    // Modify existing reservation
-    // ---------------------------------------------------------
+    // modify reservation
     private void openModifyDialog() {
         int row = reservationTable.getSelectedRow();
         if (row == -1) {
@@ -117,17 +111,9 @@ public class AgentManageCustomerDialog extends JDialog {
             return;
         }
 
-        Reservation r =
-                ((ReservationTableModel) reservationTable.getModel()).getReservationAt(row);
+        Reservation r = ((ReservationTableModel) reservationTable.getModel()).getReservationAt(row);
 
-        new ModifyReservationDialog(
-                this,
-                r,
-                agentUser,
-                targetCustomer,
-                flightController,
-                bookingController
-        ).setVisible(true);
+        new ModifyReservationDialog(this,r,agentUser,targetCustomer,bookingController).setVisible(true);
 
         reload();
     }

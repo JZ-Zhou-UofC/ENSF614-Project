@@ -120,6 +120,51 @@ public class MainWindow extends JFrame {
     // ======================================================
     // ✅ MAIN UI
     // ======================================================
+
+    private JPanel buildHeaderPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        panel.setBackground(new Color(245, 245, 245));
+
+        // ===== LEFT SIDE (App Title) =====
+        JLabel lblTitle = new JLabel("FlightApp");
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
+
+        // ===== CENTER (User Info) =====
+        JPanel userPanel = new JPanel();
+        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
+        userPanel.setOpaque(false);
+
+        User u = currentUser;
+        String role = u.getClass().getSimpleName();
+
+        JLabel name = new JLabel(u.getFirstName() + " " + u.getLastName());
+        name.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        JLabel email = new JLabel(u.getEmail());
+        email.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JLabel lblRole = new JLabel("Role: " + role);
+        lblRole.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        userPanel.add(name);
+        userPanel.add(email);
+        userPanel.add(lblRole);
+
+        // ===== RIGHT: Logout =====
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        right.setOpaque(false);
+        right.add(btnLogout);
+
+        // Add everything into main header panel
+        panel.add(lblTitle, BorderLayout.WEST);
+        panel.add(userPanel, BorderLayout.CENTER);
+        panel.add(right, BorderLayout.EAST);
+
+        return panel;
+    }
+
+
     private void initUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 450);
@@ -133,14 +178,15 @@ public class MainWindow extends JFrame {
         JPanel right = new JPanel();
         right.add(btnLogout);
 
-        lblCurrentUser.setText("<html>Logged in as:<br>" + currentUser + "</html>");
+        // lblCurrentUser.setText("<html>Logged in as:<br>" + currentUser + "</html>");
 
-        JPanel top = new JPanel(new BorderLayout());
-        top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        top.add(lblCurrentUser, BorderLayout.CENTER);
-        top.add(right, BorderLayout.EAST);
+        // JPanel top = new JPanel(new BorderLayout());
+        // top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // top.add(lblCurrentUser, BorderLayout.CENTER);
+        // top.add(right, BorderLayout.EAST);
 
-        add(top, BorderLayout.NORTH);
+        // add(top, BorderLayout.NORTH);
+        add(buildHeaderPanel(), BorderLayout.NORTH);
 
         // ================= CENTER PANEL =================
         center = new JPanel(new GridLayout(4, 1, 10, 10));

@@ -5,31 +5,33 @@ import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
+import flightapp.business.domain.FlightSeat;
 import flightapp.business.domain.Reservation;
+import flightapp.business.domain.Seat;
+import flightapp.data.FlightSeatDAO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ModifyReservationDialog extends JDialog {
 
     private final Agent agentUser;
     private final Customer targetCustomer;
     private final Reservation reservation;
-    private final FlightController flightController;
     private final BookingController bookingController;
+    private final FlightSeatDAO flightSeatDAO = new FlightSeatDAO();
 
-    private JComboBox<Flight> flightCombo;
-    private JSpinner seatSpinner;
+    private JComboBox<String> seatDropdown;
 
     public ModifyReservationDialog(
             Window parent,
             Reservation reservation,
             Agent agentUser,
             Customer targetCustomer,
-            FlightController flightController,
             BookingController bookingController
     ) {
         super(parent, "Modify Reservation", ModalityType.APPLICATION_MODAL);
@@ -37,10 +39,9 @@ public class ModifyReservationDialog extends JDialog {
         this.reservation = reservation;
         this.agentUser = agentUser;
         this.targetCustomer = targetCustomer;
-        this.flightController = flightController;
         this.bookingController = bookingController;
 
-        setSize(520, 360);
+        setSize(450, 300);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
@@ -48,107 +49,119 @@ public class ModifyReservationDialog extends JDialog {
         add(buildButtons(), BorderLayout.SOUTH);
     }
 
-    // ============================================================
-    // FORM
-    // ============================================================
     private JPanel buildForm() {
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
 
-        try {
-            List<Flight> flights = flightController.getAllFlights();
-            flightCombo = new JComboBox<>(flights.toArray(new Flight[0]));
-        } catch (SQLException e) {
-            flightCombo = new JComboBox<>();
-            JOptionPane.showMessageDialog(this, "Failed to load flights:\n" + e.getMessage());
-        }
+        Flight flight = reservation.getFlight();
 
-        // pre-select the current flight
-        flightCombo.setSelectedItem(reservation.getFlight());
-
-        seatSpinner = new JSpinner(new SpinnerNumberModel(
-                reservation.getSeatCount(), 1, 10, 1
+        // Flight is NOT editable
+        panel.add(new JLabel("Flight:"));
+        panel.add(new JLabel(
+                flight.getOrigin() + " → " + flight.getDestination()
         ));
 
-        panel.add(new JLabel("Flight:"));
-        panel.add(flightCombo);
-        panel.add(new JLabel("Seat Count:"));
-        panel.add(seatSpinner);
+        // Current seat
+        panel.add(new JLabel("Current Seat:"));
+        panel.add(new JLabel(reservation.getSeatLabel()));
+
+        // Dropdown for new seats
+        panel.add(new JLabel("Select New Seat:"));
+
+        seatDropdown = new JComboBox<>();
+        loadAvailableSeats();
+
+        panel.add(seatDropdown);
 
         return panel;
     }
 
-    // ============================================================
-    // BUTTONS
-    // ============================================================
+    private void loadAvailableSeats() {
+        try {
+            List<FlightSeat> allSeats = flightSeatDAO.findByFlight(reservation.getFlight().getId());
+
+            List<String> freeSeats = allSeats.stream()
+                    .filter(fs -> !fs.isReserved())              // only free seats
+                    .map(fs -> fs.getSeat().getSeatLabel())
+                    .collect(Collectors.toList());
+
+            // Remove current seat (it can't be selected)
+            freeSeats.remove(reservation.getSeatLabel());
+
+            for (String seat : freeSeats) {
+                seatDropdown.addItem(seat);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading seats:\n" + e.getMessage());
+        }
+    }
+
     private JPanel buildButtons() {
         JButton btnSave = new JButton("Save Changes");
-        JButton btnDelete = new JButton("Delete Reservation");
-        JButton btnCancel = new JButton("Cancel");
+        JButton btnDelete = new JButton("Cancel Reservation");
+        JButton btnClose = new JButton("Close");
 
         btnSave.addActionListener(e -> saveChanges());
         btnDelete.addActionListener(e -> deleteReservation());
-        btnCancel.addActionListener(e -> dispose());
+        btnClose.addActionListener(e -> dispose());
 
         JPanel panel = new JPanel();
         panel.add(btnSave);
         panel.add(btnDelete);
-        panel.add(btnCancel);
+        panel.add(btnClose);
 
         return panel;
     }
 
-    // ============================================================
-    // SAVE CHANGES
-    // ============================================================
     private void saveChanges() {
-        Flight selectedFlight = (Flight) flightCombo.getSelectedItem();
-        int seats = (int) seatSpinner.getValue();
+        String chosenSeatLabel = (String) seatDropdown.getSelectedItem();
 
-        if (selectedFlight == null) {
-            JOptionPane.showMessageDialog(this, "Please select a flight.");
+        if (chosenSeatLabel == null) {
+            JOptionPane.showMessageDialog(this, "No seat selected.");
             return;
         }
 
         try {
-            reservation.setFlight(selectedFlight);
-            reservation.setSeatCount(seats);
-            reservation.setModifiedAt(LocalDateTime.now());
-            reservation.setModifiedByUserId(agentUser.getId());
+            // Convert seat label to Seat object
+            List<FlightSeat> allSeats = flightSeatDAO.findByFlight(reservation.getFlight().getId());
+            FlightSeat newFs = allSeats.stream()
+                    .filter(fs -> fs.getSeat().getSeatLabel().equals(chosenSeatLabel))
+                    .findFirst()
+                    .orElseThrow();
 
-            bookingController.modifyReservation(reservation);
+            bookingController.changeSeat(agentUser, reservation, newFs.getSeat());
 
-            JOptionPane.showMessageDialog(this, "Reservation updated successfully!");
+            JOptionPane.showMessageDialog(this,
+                    "Seat changed successfully!");
             dispose();
 
-        } catch (SQLException ex) {
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                    "Failed to update reservation:\n" + ex.getMessage());
+                    "Failed to change seat:\n" + e.getMessage());
         }
     }
 
-    // ============================================================
-    // DELETE RESERVATION
-    // ============================================================
     private void deleteReservation() {
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to delete this reservation?",
+                "Are you sure you want to cancel this reservation?",
                 "Confirm Delete",
                 JOptionPane.YES_NO_OPTION
         );
 
-        if (confirm != JOptionPane.YES_OPTION) return;
+        if (confirm != JOptionPane.YES_OPTION)
+            return;
 
         try {
-            bookingController.deleteReservation(reservation);
-
+            bookingController.cancelReservation(reservation);
             JOptionPane.showMessageDialog(this,
-                    "Reservation deleted successfully!");
+                    "Reservation cancelled.");
             dispose();
-
-        } catch (SQLException ex) {
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                    "Failed to delete reservation:\n" + ex.getMessage());
+                    "Failed to cancel reservation:\n" + e.getMessage());
         }
     }
 }
+
