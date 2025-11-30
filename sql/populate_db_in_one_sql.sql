@@ -133,7 +133,8 @@ CREATE TABLE flight_seats (
 
 INSERT INTO flight_seats (flight_id, seat_id, reserved) VALUES
 (1,1,FALSE),(1,2,FALSE),(1,3,FALSE),
-(1,4,FALSE),(1,5,FALSE),(1,6,FALSE);
+(1,4,FALSE),(1,5,FALSE),(1,6,FALSE),
+(2,1,FALSE),(2,2,FALSE),(2,3,FALSE);
 
 -- 
 -- reservations
