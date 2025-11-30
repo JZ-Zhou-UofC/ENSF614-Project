@@ -164,7 +164,9 @@ INSERT INTO reservations (
     booked_at, modified_at,
     booked_by_user_id, modified_by_user_id
 ) VALUES
-(1, 1, 1, '2025-01-25 12:00:00', NULL, 3, NULL);
+(1, 1, 1, '2025-01-25 12:00:00', NULL, 3, NULL),
+(1, 1, 2, '2025-01-25 12:00:00', NULL, 3, NULL),
+(1, 1, 3, '2025-01-25 12:00:00', NULL, 3, NULL);
 
 -- promotions
 CREATE TABLE promotions (
