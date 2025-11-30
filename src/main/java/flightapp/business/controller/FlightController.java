@@ -5,6 +5,10 @@ import flightapp.business.domain.Airplane;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.FlightSeat;
 import flightapp.data.FlightDAO;
+import flightapp.data.AirplaneDAO;
+import flightapp.data.FlightSeatDAO;
+import flightapp.data.ReservationDAO;
+
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -16,43 +20,96 @@ import java.util.stream.Collectors;
 public class FlightController {
 
     private final FlightDAO flightDAO;
+    private final AirplaneDAO airplaneDAO;
+    private final FlightSeatDAO flightSeatDAO;
+    private final ReservationDAO reservationDAO;
+
 
     // Controller manages its own DAO
     public FlightController() {
         this.flightDAO = new FlightDAO();
+        this.airplaneDAO = new AirplaneDAO();
+        this.flightSeatDAO = new FlightSeatDAO();
+        this.reservationDAO = new ReservationDAO();
     }
 
     // Optional constructor for testing
-    public FlightController(FlightDAO flightDAO) {
+    public FlightController(FlightDAO flightDAO, AirplaneDAO airplaneDAO, FlightSeatDAO flightSeatDAO, ReservationDAO reservationDAO) {
         this.flightDAO = flightDAO;
+        this.airplaneDAO = airplaneDAO;
+        this.flightSeatDAO = flightSeatDAO;
+        this.reservationDAO = reservationDAO;
     }
 
-    public Flight createFlight(Flight flight) {
-        Flight savedFlight = FlightDAO.saveFlight(flight);
 
-            Flight saved = flightDAO.save(flight);
+    public Airplane createAirplane(Admin admin, Airplane airplane) throws SQLException {
+        if (admin == null)
+            throw new IllegalArgumentException("Admin cannot be null.");
+        if (airplane == null)
+            throw new IllegalArgumentException("Airplane cannot be null.");
 
-        // 2. Load airplane seats for this airplane
-        Airplane airplane = airplaneDAO.findById(saved.getAirplaneId());
-        List<AirplaneSeat> airplaneSeats = airplaneSeatDAO.findByAirplaneId(airplane.getId());
+        
+        Airplane saved = airplaneDAO.save(airplane);
 
-        // 3. Generate FlightSeat objects
-        List<FlightSeat> flightSeats = airplaneSeats.stream()
-                .map(seat -> new FlightSeat(saved.getId(), seat.getId(), false))
-                .collect(Collectors.toList());
-
-        // 4. Save them
-        flightSeatDAO.saveAll(flightSeats);
-
-        // 5. Attach to flight POJO
-        saved.setSeats(flightSeats);
+        System.out.println("Airplane created: ID=" + saved.getId() +
+                        ", Seats=" + saved.getSeats().size());
 
         return saved;
     }
+
+
+    public List<Airplane> findAllAvailableAirplanes() throws SQLException {
+        return airplaneDAO.findAllAvailable();
     }
+
+
+    public Flight createFlight(Admin admin, Flight flight) throws SQLException {
+        if (admin == null) {
+            throw new IllegalArgumentException("Admin cannot be null");
+        }
+        if (flight == null) {
+            throw new IllegalArgumentException("Flight cannot be null");
+        }
+
+        Flight saved = flightDAO.save(flight);
+
+        Airplane airplane = airplaneDAO.findById(saved.getAirplaneId());
+        if (airplane == null) {
+            throw new SQLException("Airplane ID " + saved.getAirplaneId() + " does not exist.");
+        }
+
+        // ChatGPT assisted with generating the flightSeats List
+        List<FlightSeat> flightSeats = airplane.getSeats()
+                .stream()
+                .map(seat -> new FlightSeat(saved.getId(), seat, false))
+                .collect(Collectors.toList());
+
+        // Save the flightSeats
+        flightSeatDAO.saveAll(flightSeats);
+
+        // 
+        saved.setSeatsAvailable(flightSeats.size());
+        flightDAO.update(saved);
+
+        return saved;
+    }
+
+
+    public void deleteFlight(Admin admin, int flightId) throws SQLException {
+
+        if (admin == null)
+            throw new IllegalArgumentException("Admin cannot be null");
+
+        reservationDAO.deleteByFlight(flightId);
+
+        flightSeatDAO.deleteByFlight(flightId);
+
+        flightDAO.delete(flightId);
+    }
+
+    
     
 
-    // ----- SEARCH -----
     public List<Flight> searchFlights(String origin, String destination, LocalDate date) throws SQLException {
         List<Flight> all = flightDAO.findAll();
 
@@ -67,7 +124,6 @@ public class FlightController {
                 .collect(Collectors.toList());
     }
 
-    // ----- GET ALL -----
     public List<Flight> getAllFlights() throws SQLException {
         return flightDAO.findAll();
     }
@@ -82,7 +138,6 @@ public class FlightController {
         if (flight == null)
             throw new IllegalArgumentException("Flight cannot be null.");
 
-        // Admin auditing fields
         flight.setLastModifiedAt(LocalDateTime.now());
         flight.setLastModifiedByUserId(admin.getId());
 

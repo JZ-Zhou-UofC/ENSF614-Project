@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class Flight {
 
     private int id;
+    private int airplaneId; 
     private String origin;
     private String destination;
     private LocalDateTime departureTime;
@@ -12,13 +13,30 @@ public class Flight {
     private double price;
     private int seatsAvailable;
 
-    // Optional metadata
     private LocalDateTime lastModifiedAt;
     private Integer lastModifiedByUserId;
 
+    public Flight() {}
+
+    public Flight(int airplaneId, String origin, String destination,
+                  LocalDateTime departureTime, LocalDateTime arrivalTime,
+                  double price) {
+        this.airplaneId = airplaneId;
+        this.origin = origin;
+        this.destination = destination;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.price = price;
+    }
+
+    // Getters & Setters 
     public int getId() { return id; }
 
     public void setId(int id) { this.id = id; }
+
+    public int getAirplaneId() { return airplaneId; }
+
+    public void setAirplaneId(int airplaneId) { this.airplaneId = airplaneId; }
 
     public String getOrigin() { return origin; }
 
@@ -56,6 +74,7 @@ public class Flight {
     public String toString() {
         return "Flight{" +
                "id=" + id +
+               ", airplaneId=" + airplaneId +
                ", origin='" + origin + '\'' +
                ", destination='" + destination + '\'' +
                ", departureTime=" + departureTime +
@@ -65,3 +84,4 @@ public class Flight {
                '}';
     }
 }
+

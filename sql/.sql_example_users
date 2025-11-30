@@ -1,28 +1,20 @@
 USE flightdb;
 
--- =========================
--- ✅ Ensure subscribed allows NULL
--- =========================
+
 ALTER TABLE users
 MODIFY subscribed BOOLEAN NULL DEFAULT NULL;
 
--- =========================
--- ✅ Admin (subscribed = NULL)
--- =========================
+
 INSERT INTO users (first_name, last_name, email, role, subscribed)
 VALUES
 ('Alice', 'Admin', 'admin@example.com', 'ADMIN', NULL);
 
--- =========================
--- ✅ Agent (subscribed = NULL)
--- =========================
+
 INSERT INTO users (first_name, last_name, email, role, subscribed)
 VALUES
 ('Bob', 'Agent', 'agent@example.com', 'AGENT', NULL);
 
--- =========================
--- ✅ Customers (subscribed = TRUE / FALSE)
--- =========================
+
 INSERT INTO users (first_name, last_name, email, role, phone, subscribed)
 VALUES
 ('Charlie', 'Customer', 'customer1@example.com', 'CUSTOMER', '4031112222', TRUE),
