@@ -2,11 +2,11 @@ package flightapp.presentation.agent;
 
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
+import flightapp.business.controller.UserController;
+import flightapp.business.controller.AgentController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
-import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
-import flightapp.presentation.general.FlightTableModel;
 import flightapp.presentation.general.ReservationTableModel;
 
 import javax.swing.*;
@@ -17,18 +17,23 @@ import java.util.List;
 public class AgentManageCustomerDialog extends JDialog {
 
     private final Agent agentUser;
-    private final Customer targetCustomer;
+    private Customer targetCustomer; // Made non-final so we can update it
     private final FlightController flightController;
     private final BookingController bookingController;
+    private final UserController userController;
+    private final AgentController agentController;
 
     private JTable reservationTable;
+    private JLabel titleLabel;
 
     public AgentManageCustomerDialog(
             Window parent,
             Agent agentUser,
             Customer targetCustomer,
             FlightController flightController,
-            BookingController bookingController
+            BookingController bookingController,
+            UserController userController,
+            AgentController agentController
     ) {
         super(parent, "Manage Customer", ModalityType.APPLICATION_MODAL);
 
@@ -36,30 +41,35 @@ public class AgentManageCustomerDialog extends JDialog {
         this.targetCustomer = targetCustomer;
         this.flightController = flightController;
         this.bookingController = bookingController;
+        this.userController = userController;
+        this.agentController = agentController;
 
         setSize(820, 450);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        JLabel title = new JLabel(
+        titleLabel = new JLabel(
                 "<html><h2>Managing Customer: " + targetCustomer.getFirstName() + " " + targetCustomer.getLastName() +
                         " &nbsp;(ID: " + targetCustomer.getId() + ")</h2></html>"
         );
-        add(title, BorderLayout.NORTH);
+        add(titleLabel, BorderLayout.NORTH);
 
         loadReservations();
 
+        JButton btnEdit = new JButton("Edit Customer Info");
         JButton btnBook = new JButton("Book Flight for Customer");
         JButton btnModify = new JButton("Modify Selected Reservation");
         JButton btnClose = new JButton("Close");
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottom.add(btnEdit);
         bottom.add(btnBook);
         bottom.add(btnModify);
         bottom.add(btnClose);
 
         add(bottom, BorderLayout.SOUTH);
 
+        btnEdit.addActionListener(e -> openEditDialog());
         btnBook.addActionListener(e -> openFlightSelector());
         btnModify.addActionListener(e -> openModifyDialog());
         btnClose.addActionListener(e -> dispose());
@@ -108,7 +118,7 @@ public class AgentManageCustomerDialog extends JDialog {
     }
 
     // ---------------------------------------------------------
-    // Modify existing reservation
+    // Modify existing reservation.
     // ---------------------------------------------------------
     private void openModifyDialog() {
         int row = reservationTable.getSelectedRow();
@@ -130,5 +140,29 @@ public class AgentManageCustomerDialog extends JDialog {
         ).setVisible(true);
 
         reload();
+    }
+
+    // ---------------------------------------------------------
+    // Edit customer information
+    // ---------------------------------------------------------
+    private void openEditDialog() {
+        AgentEditCustomerDialog editDialog = new AgentEditCustomerDialog(
+                this,
+                agentUser,
+                targetCustomer,
+                agentController
+        );
+        editDialog.setVisible(true);
+
+        // Update targetCustomer if changes were saved
+        Customer updated = editDialog.getUpdatedCustomer();
+        if (updated != null) {
+            targetCustomer = updated;
+            // Update title to reflect changes
+            titleLabel.setText(
+                    "<html><h2>Managing Customer: " + targetCustomer.getFirstName() + " " + targetCustomer.getLastName() +
+                            " &nbsp;(ID: " + targetCustomer.getId() + ")</h2></html>"
+            );
+        }
     }
 }

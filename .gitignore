@@ -80,3 +80,20 @@ Desktop.ini
 *.sql
 *.dump
 *.db
+
+###############################
+# Logs files
+###############################
+
+logs/
+*.log
+
+###############################
+# Guide document.
+###############################
+LOGGING_IMPLEMENTATION_GUIDE.md
+
+###############################
+# Drawio diagram
+###############################
+FlightBookingSystem_ClassDiagram.drawio

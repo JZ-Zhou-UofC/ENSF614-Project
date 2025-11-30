@@ -100,4 +100,64 @@ public class UserDAO {
         }
     }
 
+
+
+	public User findById(int id) throws SQLException {
+	    String sql = "SELECT id, first_name, last_name, email, role, phone, subscribed FROM users WHERE id = ?";
+	    try (Connection conn = DBConnection.getConnection();
+	            PreparedStatement ps = conn.prepareStatement(sql)) {
+	
+	        ps.setInt(1, id);
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (!rs.next())
+	                return null;
+	
+	            String email = rs.getString("email");
+	            String firstName = rs.getString("first_name");
+	            String lastName = rs.getString("last_name");
+	            String role = rs.getString("role");
+	            String phone = rs.getString("phone");
+	
+	            return switch (role) {
+	                case "CUSTOMER" -> {
+	                    boolean subscribed = rs.getBoolean("subscribed");
+	                    yield new Customer(id, firstName, lastName, email, phone, subscribed);
+	                }
+	                case "AGENT" -> new Agent(id, firstName, lastName, email);
+	                case "ADMIN" -> new Admin(id, firstName, lastName, email);
+	                default -> null;
+	            };
+	        }
+	    }
+	}
+
+	
+	public Customer updateCustomer(Customer customer) throws SQLException {
+		String sql = """
+				UPDATE users 
+				SET first_name = ?, last_name = ?, email = ?, phone = ?, subscribed = ?
+				WHERE id = ? AND role = 'CUSTOMER'
+			""";
+		
+		try (Connection conn = DBConnection.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			
+			ps.setString(1, customer.getFirstName());
+			ps.setString(2, customer.getLastName());
+			ps.setString(3, customer.getEmail());
+			ps.setString(4, customer.getPhone());
+			ps.setBoolean(5, customer.isSubscribed());
+			ps.setInt(6, customer.getId());
+			
+			int affectedRows = ps.executeUpdate();
+			
+			if (affectedRows == 0) {
+				throw new SQLException("Updating customer failed, no rows affected. Customer may not exist or is not a CUSTOMER role.");
+			}
+			
+			return customer;
+		}
+	}
+	
+	
 }

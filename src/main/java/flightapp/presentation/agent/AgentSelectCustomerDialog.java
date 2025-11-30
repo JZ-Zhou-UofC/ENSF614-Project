@@ -2,6 +2,8 @@ package flightapp.presentation.agent;
 
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
+import flightapp.business.controller.UserController;
+import flightapp.business.controller.AgentController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.data.UserDAO;
@@ -16,6 +18,8 @@ public class AgentSelectCustomerDialog extends JDialog {
     private final Agent agentUser;
     private final FlightController flightController;
     private final BookingController bookingController;
+    private final UserController userController;
+    private final AgentController agentController;
     private final UserDAO userDAO = new UserDAO();
 
     private JTable table;
@@ -24,13 +28,17 @@ public class AgentSelectCustomerDialog extends JDialog {
             Window parent,
             Agent agentUser,
             FlightController flightController,
-            BookingController bookingController
+            BookingController bookingController,
+            UserController userController,
+            AgentController agentController
     ) {
         super(parent, "Select Customer", ModalityType.APPLICATION_MODAL);
 
         this.agentUser = agentUser;
         this.flightController = flightController;
         this.bookingController = bookingController;
+        this.userController = userController;
+        this.agentController = agentController;
 
         setSize(520, 420);
         setLocationRelativeTo(parent);
@@ -75,7 +83,9 @@ public class AgentSelectCustomerDialog extends JDialog {
                 agentUser,
                 customer,
                 flightController,
-                bookingController
+                bookingController,
+                userController,
+                agentController
         ).setVisible(true);
 
         dispose();

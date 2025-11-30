@@ -3,6 +3,8 @@ package flightapp.presentation.agent;
 import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
 import flightapp.business.controller.PromotionController;
+import flightapp.business.controller.UserController;
+import flightapp.business.controller.AgentController;
 import flightapp.business.domain.Agent;
 
 import javax.swing.*;
@@ -14,14 +16,18 @@ public class AgentMainDialog extends JDialog {
     private final FlightController flightController;
     private final BookingController bookingController;
     private final PromotionController promotionController;
+    private final UserController userController;
+    private final AgentController agentController;
 
     // 👇 Signature now matches how you call it:
-    // new AgentMainDialog(this, flightController, bookingController, promotionController, (Agent) currentUser)
+    // new AgentMainDialog(this, flightController, bookingController, promotionController, userController, (Agent) currentUser)
     public AgentMainDialog(
             Window parent,
             FlightController flightController,
             BookingController bookingController,
             PromotionController promotionController,
+            UserController userController,
+            AgentController agentController,
             Agent currentUser
     ) {
         super(parent, "Agent Panel", ModalityType.APPLICATION_MODAL);
@@ -30,6 +36,8 @@ public class AgentMainDialog extends JDialog {
         this.flightController = flightController;
         this.bookingController = bookingController;
         this.promotionController = promotionController;
+        this.userController = userController;
+        this.agentController = agentController;
 
         setSize(420, 250);
         setLocationRelativeTo(parent);
@@ -64,7 +72,9 @@ public class AgentMainDialog extends JDialog {
                 this,
                 agentUser,
                 flightController,
-                bookingController
+                bookingController,
+                userController,
+                agentController
         ).setVisible(true);
     }
 }

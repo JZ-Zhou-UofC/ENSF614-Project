@@ -1,5 +1,7 @@
 package flightapp.data;
 
+import flightapp.util.SystemLogger;
+
 import flightapp.business.domain.Flight;
 
 import java.sql.*;
@@ -9,20 +11,40 @@ import java.util.List;
 
 public class FlightDAO {
 
-    public List<Flight> findAll() throws SQLException {
-        String sql = "SELECT * FROM flights";
-        List<Flight> result = new ArrayList<>();
+	public List<Flight> findAll() throws SQLException {
+	    String sql = "SELECT * FROM flights";
+	    SystemLogger.logDatabaseStatus(
+	        SystemLogger.SystemStatus.DEBUG,
+	        "QUERY",
+	        "SELECT * FROM flights"
+	    );
+	    
+	    List<Flight> result = new ArrayList<>();
 
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+	    try (Connection conn = DBConnection.getConnection();
+	            PreparedStatement ps = conn.prepareStatement(sql);
+	            ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                result.add(mapRow(rs));
-            }
-        }
-        return result;
-    }
+	        while (rs.next()) {
+	            result.add(mapRow(rs));
+	        }
+	        
+	        SystemLogger.logDatabaseStatus(
+	            SystemLogger.SystemStatus.DEBUG,
+	            "QUERY_SUCCESS",
+	            String.format("Retrieved %d flights", result.size())
+	        );
+	    } catch (SQLException e) {
+	        SystemLogger.logDatabaseStatus(
+	            SystemLogger.SystemStatus.ERROR,
+	            "QUERY_FAILED",
+	            "Error retrieving flights: " + e.getMessage(),
+	            e
+	        );
+	        throw e;
+	    }
+	    return result;
+	}
 
     public Flight findById(int id) throws SQLException {
         String sql = "SELECT * FROM flights WHERE id = ?";
@@ -45,6 +67,12 @@ public class FlightDAO {
                   price = ?, seats_available = ?
                 WHERE id = ?
                 """;
+        SystemLogger.logDatabaseStatus(
+            SystemLogger.SystemStatus.INFO,
+            "UPDATE",
+            String.format("Updating flight ID %d", f.getId())
+        );
+        
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -56,6 +84,20 @@ public class FlightDAO {
             ps.setInt(6, f.getSeatsAvailable());
             ps.setInt(7, f.getId());
             ps.executeUpdate();
+            
+            SystemLogger.logDatabaseStatus(
+                SystemLogger.SystemStatus.INFO,
+                "UPDATE_SUCCESS",
+                String.format("Flight ID %d updated successfully", f.getId())
+            );
+        } catch (SQLException e) {
+            SystemLogger.logDatabaseStatus(
+                SystemLogger.SystemStatus.ERROR,
+                "UPDATE_FAILED",
+                String.format("Failed to update flight ID %d: %s", f.getId(), e.getMessage()),
+                e
+            );
+            throw e;
         }
         return f;
     }
