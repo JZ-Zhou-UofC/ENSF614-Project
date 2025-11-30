@@ -1,6 +1,7 @@
 package flightapp.presentation.customer;
 
 import flightapp.business.controller.BookingController;
+import flightapp.business.controller.PaymentController;
 import flightapp.business.domain.CreditCardPayment;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
@@ -12,12 +13,14 @@ import flightapp.business.domain.PaypalPayment;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.ArrayList; 
 
 public class BookingDialog extends JDialog {
 
     private final Customer customer;
     private final Flight flight;
     private final BookingController bookingController;
+    private final PaymentController paymentController; 
 
     private final JSpinner seatSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
     JComboBox<String> paymentSelector; 
@@ -27,10 +30,21 @@ public class BookingDialog extends JDialog {
         this.customer = customer;
         this.flight = flight;
         this.bookingController = bookingController;
-        // Simulate getting payment options from DB 
-        String[] paymentOptions = {"Paypal","CreditCard"}; 
-        paymentSelector = new JComboBox<>(paymentOptions);
+        paymentController = new PaymentController(); 
+
         initUI();
+    }
+
+    private void initPaymentComboBox(){
+        try{
+            ArrayList<PaymentMethod> payMethds = paymentController.getPaymentMethods(customer); 
+            this.paymentSelector.removeAllItems(); 
+    	    for (int i = 0; i < payMethds.size();i++) {
+    		this.paymentSelector.addItem(payMethds.get(i).getStrType()); 
+    	    }
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "No payment options\n" + e.getMessage());
+        }
     }
 
     private void initUI() {
@@ -51,6 +65,8 @@ public class BookingDialog extends JDialog {
         JButton btnOk = new JButton("Confirm");
         JButton btnCancel = new JButton("Cancel");
 
+        paymentSelector = new JComboBox<>();
+        this.initPaymentComboBox();
         btnOk.addActionListener(e -> onConfirm());
         btnCancel.addActionListener(e -> dispose());
 
@@ -78,16 +94,9 @@ public class BookingDialog extends JDialog {
         int seats = (Integer) seatSpinner.getValue();
 
         try {
-            String selectedPayment = (String) paymentSelector.getSelectedItem(); 
-            PaymentMethod p = new PaymentMethod(); 
-            if(selectedPayment.equals("CreditCard")){
-                p.setPaymentStrategy(new CreditCardPayment());
-            }else{
-                p.setPaymentStrategy(new PaypalPayment()); 
-            }
             Reservation r = bookingController.bookForCustomer(customer, flight, seats);
             JOptionPane.showMessageDialog(this,
-                    "Booking successful! Reservation ID: " + r.getId() + " " + p.makePayment(),
+                    "Booking successful! Reservation ID: " + r.getId(),
                     "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (SQLException ex) {
