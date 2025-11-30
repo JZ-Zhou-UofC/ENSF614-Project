@@ -1,7 +1,5 @@
 # ENSF614-Project - Flight Booking System  
 
-# FlightApp - Flight Booking System
-
 # HOW TO RUN
 
 ## 1. Create `.env` file in project root:  
