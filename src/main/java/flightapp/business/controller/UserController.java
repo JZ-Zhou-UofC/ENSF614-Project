@@ -10,12 +10,12 @@ public class UserController {
 
     private final UserDAO userDAO;
 
-    // ⭐ Controller creates its own DAO
+
     public UserController() {
         this.userDAO = new UserDAO();
     }
 
-    // ⭐ Optional constructor for testing or overriding dependency
+
     public UserController(UserDAO userDAO) {
         this.userDAO = userDAO;
     }

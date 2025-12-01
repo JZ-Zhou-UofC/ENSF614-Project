@@ -9,7 +9,7 @@ public class DBConnection {
 
     private static final Dotenv dotenv = Dotenv.configure()
             .directory("./")     // look in project root
-            .ignoreIfMissing()   // prevents crash if no .env (optional)
+            .ignoreIfMissing()
             .load();
 
     private static final String URL  = dotenv.get("DB_URL");

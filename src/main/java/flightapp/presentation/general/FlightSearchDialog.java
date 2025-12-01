@@ -113,7 +113,7 @@ public class FlightSearchDialog extends JDialog {
         }
 
         try {
-            // ⭐ Use controller, not DAO
+
             List<Flight> flights = flightController.searchFlights(origin, dest, date);
 
             tableModel.setRowCount(0);
