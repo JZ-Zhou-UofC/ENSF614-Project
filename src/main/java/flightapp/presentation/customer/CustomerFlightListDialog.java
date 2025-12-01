@@ -6,7 +6,7 @@ import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
 import flightapp.presentation.agent.SeatSelectionDialog;
-import flightapp.presentation.general.FlightTableModel;
+import flightapp.presentation.general.FlightFilterDialog;
 import flightapp.presentation.general.ReservationTableModel;
 
 import javax.swing.*;
@@ -20,7 +20,6 @@ public class CustomerFlightListDialog extends JDialog {
     private final BookingController bookingController;
     private final Customer currentCustomer;
 
-    private JTable tableAvailable;
     private JTable tableMyBookings;
 
     public CustomerFlightListDialog(
@@ -38,33 +37,31 @@ public class CustomerFlightListDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        // Tabs
         JTabbedPane tabs = new JTabbedPane();
         tabs.add("Available Flights", createAvailableFlightsPanel());
         tabs.add("My Bookings", createMyBookingsPanel());
         add(tabs, BorderLayout.CENTER);
 
-        // Buttons
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnBook = new JButton("Book Selected Flight");
+        JButton btnBook = new JButton("Browse & Book Flight");
         JButton btnClose = new JButton("Close");
+
         bottom.add(btnBook);
         bottom.add(btnClose);
         add(bottom, BorderLayout.SOUTH);
 
-        btnBook.addActionListener(e -> openBookingDialog());
+        btnBook.addActionListener(e -> openBookingFlow());
         btnClose.addActionListener(e -> dispose());
     }
 
+    // ✅ OPEN FILTER DIALOG ONLY (NO TABLE EMBEDDED)
     private JPanel createAvailableFlightsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        try {
-            List<Flight> list = flightController.getAllFlights();
-            tableAvailable = new JTable(new FlightTableModel(list));
-            panel.add(new JScrollPane(tableAvailable), BorderLayout.CENTER);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error loading flights:\n" + ex.getMessage());
-        }
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton btnBrowse = new JButton("Browse & Filter Flights");
+        panel.add(btnBrowse);
+
+        btnBrowse.addActionListener(e -> openBookingFlow());
         return panel;
     }
 
@@ -80,24 +77,33 @@ public class CustomerFlightListDialog extends JDialog {
         return panel;
     }
 
-    private void openBookingDialog() {
-        int row = tableAvailable.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a flight.");
-            return;
+    // ✅ FULL BOOKING FLOW
+    private void openBookingFlow() {
+        try {
+            List<Flight> list = flightController.getAllFlights();
+
+            FlightFilterDialog dialog = new FlightFilterDialog(this, list);
+            dialog.setVisible(true);
+
+            Flight selected = dialog.getSelectedFlight();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "No flight selected.");
+                return;
+            }
+
+            new SeatSelectionDialog(
+                    this,
+                    currentCustomer,
+                    currentCustomer,
+                    selected,
+                    bookingController
+            ).setVisible(true);
+
+            refreshBookings();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading flights:\n" + ex.getMessage());
         }
-
-        Flight flight = ((FlightTableModel) tableAvailable.getModel()).getFlightAt(row);
-
-        // new BookingDialog(this, currentCustomer, flight, bookingController).setVisible(true);
-        new SeatSelectionDialog(
-                this,
-                currentCustomer,
-                currentCustomer,
-                flight,
-                bookingController
-        ).setVisible(true);
-        refreshBookings();
     }
 
     private void refreshBookings() {

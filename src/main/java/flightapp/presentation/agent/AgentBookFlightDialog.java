@@ -5,8 +5,7 @@ import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
-import flightapp.business.domain.Reservation;
-import flightapp.presentation.general.FlightTableModel;
+import flightapp.presentation.general.FlightFilterDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,8 +18,6 @@ public class AgentBookFlightDialog extends JDialog {
     private final Customer targetCustomer;
     private final FlightController flightController;
     private final BookingController bookingController;
-
-    private JTable table;
 
     public AgentBookFlightDialog(
             Window parent,
@@ -36,55 +33,66 @@ public class AgentBookFlightDialog extends JDialog {
         this.flightController = flightController;
         this.bookingController = bookingController;
 
-        setSize(800, 450);
+        setSize(800, 300);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        loadFlights();
+        // =========================
+        // ✅ CENTER PANEL (BUTTON)
+        // =========================
+        JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton btnBrowse = new JButton("Browse & Select Flight");
+        center.add(btnBrowse);
+        add(center, BorderLayout.CENTER);
 
-        JButton btnBook = new JButton("Book Selected Flight");
+        // =========================
+        // ✅ BOTTOM BUTTONS
+        // =========================
         JButton btnClose = new JButton("Close");
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottom.add(btnBook);
         bottom.add(btnClose);
-
-        btnBook.addActionListener(e -> doBook());
-        btnClose.addActionListener(e -> dispose());
-
         add(bottom, BorderLayout.SOUTH);
+
+        // =========================
+        // ✅ ACTIONS
+        // =========================
+        btnBrowse.addActionListener(e -> openBookingFlow());
+        btnClose.addActionListener(e -> dispose());
     }
 
-    private void loadFlights() {
+    // =========================
+    // ✅ FULL AGENT BOOKING FLOW
+    // =========================
+    private void openBookingFlow() {
         try {
             List<Flight> list = flightController.getAllFlights();
-            table = new JTable(new FlightTableModel(list));
-            add(new JScrollPane(table), BorderLayout.CENTER);
+
+            // ✅ OPEN FILTER DIALOG
+            FlightFilterDialog dialog = new FlightFilterDialog(this, list);
+            dialog.setVisible(true);
+
+            // ✅ GET SELECTED FLIGHT
+            Flight selected = dialog.getSelectedFlight();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "No flight selected.");
+                return;
+            }
+
+            // ✅ SEAT SELECTION & BOOKING
+            new SeatSelectionDialog(
+                    this,
+                    agentUser,
+                    targetCustomer,
+                    selected,
+                    bookingController
+            ).setVisible(true);
+
+            dispose(); // ✅ Close after booking step
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
                     "Error loading flights:\n" + ex.getMessage());
         }
     }
-
-    private void doBook() {
-        int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a flight.");
-            return;
-        }
-
-        Flight flight = ((FlightTableModel) table.getModel()).getFlightAt(row);
-
-        // NEW: seat selection dialog
-        new SeatSelectionDialog(
-                this,
-                agentUser,
-                targetCustomer,
-                flight,
-                bookingController
-        ).setVisible(true);
-
-        dispose();
-    }
-
 }
