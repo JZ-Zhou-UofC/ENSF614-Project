@@ -4,9 +4,7 @@ import flightapp.business.controller.BookingController;
 import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
-import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
-import flightapp.presentation.general.FlightTableModel;
 import flightapp.presentation.general.ReservationTableModel;
 
 import javax.swing.*;

@@ -58,9 +58,7 @@ public class AgentSelectCustomerDialog extends JDialog {
         btnClose.addActionListener(e -> dispose());
     }
 
-    // ============================
-    // LOAD ALL CUSTOMERS (INITIAL)
-    // ============================
+    // load all customers
     private void loadCustomers() {
         try {
             List<Customer> list = userDAO.findAllCustomers();
@@ -83,9 +81,7 @@ public class AgentSelectCustomerDialog extends JDialog {
         }
     }
 
-    // ============================
-    // MANAGE CUSTOMER FLIGHTS
-    // ============================
+    // manage customer flights
     private void manageCustomerFlights() {
         int row = table.getSelectedRow();
         if (row == -1) {
@@ -107,9 +103,7 @@ public class AgentSelectCustomerDialog extends JDialog {
         dispose();
     }
 
-    // ============================
-    // MANAGE CUSTOMER PROFILE
-    // ============================
+    // manage customer profile
     private void manageCustomerProfile() {
         int row = table.getSelectedRow();
         if (row == -1) {

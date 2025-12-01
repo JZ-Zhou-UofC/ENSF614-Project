@@ -105,7 +105,7 @@ public class CreateFlightDialog extends JDialog {
             f.setDepartureTime(LocalDateTime.parse(txtDeparture.getText().trim()));
             f.setArrivalTime(LocalDateTime.parse(txtArrival.getText().trim()));
             f.setPrice(Double.parseDouble(txtPrice.getText().trim()));
-            f.setSeatsAvailable(0); // FlightController will set real count
+            f.setSeatsAvailable(0); 
 
             flightController.createFlight(adminUser, f);
 

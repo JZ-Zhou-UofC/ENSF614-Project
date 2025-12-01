@@ -35,9 +35,7 @@ public class AgentSendPromotionDialog extends JDialog {
     }
 
     private void initUI() {
-        // =========================
-        // TOP PANEL
-        // =========================
+        // top panel
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -55,9 +53,7 @@ public class AgentSendPromotionDialog extends JDialog {
         topPanel.add(subscriberScroll, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        // =========================
-        // CENTER PANEL (MESSAGE)
-        // =========================
+        // center panel
         JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -84,9 +80,7 @@ public class AgentSendPromotionDialog extends JDialog {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // =========================
-        // BOTTOM PANEL (BUTTONS)
-        // =========================
+        // bottom panel
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -105,9 +99,7 @@ public class AgentSendPromotionDialog extends JDialog {
         getRootPane().setDefaultButton(btnSend);
     }
 
-    // =========================
-    // LOAD SUBSCRIBERS
-    // =========================
+    // load subscribers
     private void updateSubscriberList() {
         try {
             List<Customer> customers = promotionController.getSubscribedCustomers();
@@ -128,9 +120,7 @@ public class AgentSendPromotionDialog extends JDialog {
         }
     }
 
-    // =========================
-    // SEND PROMOTION
-    // =========================
+    // send promotion
     private void sendPromotion() {
         String message = txtMessage.getText().trim();
 

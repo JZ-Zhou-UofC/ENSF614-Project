@@ -35,9 +35,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         loadExistingPaymentMethod(); 
     }
 
-    // ============================
-    // UI SETUP
-    // ============================
+    // UI setup
     private void initUI() {
         JPanel form = new JPanel(new GridLayout(4, 2, 12, 12));
         form.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -80,19 +78,17 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         try {
             ArrayList<PaymentMethod> methods = paymentController.getPaymentMethods(customer);
 
-            String existingType = methods.get(0).getStrType(); // use first available
+            String existingType = methods.get(0).getStrType(); 
             cmbPayment.setSelectedItem(existingType);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not load payment method:\n" + ex.getMessage());
-            cmbPayment.setSelectedIndex(0); // safe fallback
+            cmbPayment.setSelectedIndex(0); 
         }
     }
 
-    // ============================
-    // SAVE PROFILE + PAYMENT
-    // ============================
+    // save profile and payment
     private void saveCustomer() {
 
 

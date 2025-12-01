@@ -3,7 +3,6 @@ package flightapp.data;
 import flightapp.business.domain.*;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class ReservationDAO {
         }
     }
 
-    // Delete by flight (for admin deleting flight)
+    // Delete by flight
     public void deleteByFlight(int flightId) throws SQLException {
         String sql = "DELETE FROM reservations WHERE flight_id = ?";
 

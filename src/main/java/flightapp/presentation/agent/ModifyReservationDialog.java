@@ -1,19 +1,16 @@
 package flightapp.presentation.agent;
 
 import flightapp.business.controller.BookingController;
-import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.FlightSeat;
 import flightapp.business.domain.Reservation;
-import flightapp.business.domain.Seat;
 import flightapp.data.FlightSeatDAO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,11 +77,10 @@ public class ModifyReservationDialog extends JDialog {
             List<FlightSeat> allSeats = flightSeatDAO.findByFlight(reservation.getFlight().getId());
 
             List<String> freeSeats = allSeats.stream()
-                    .filter(fs -> !fs.isReserved())              // only free seats
+                    .filter(fs -> !fs.isReserved())  
                     .map(fs -> fs.getSeat().getSeatLabel())
                     .collect(Collectors.toList());
 
-            // Remove current seat (it can't be selected)
             freeSeats.remove(reservation.getSeatLabel());
 
             for (String seat : freeSeats) {

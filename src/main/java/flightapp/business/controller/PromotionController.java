@@ -25,10 +25,7 @@ public class PromotionController {
         this.promotionDAO= new PromotionDAO();
     }
 
-   
-    // ========================
 
-    // ========================
 
     /**
      * Registers a customer as an observer (subscriber).
