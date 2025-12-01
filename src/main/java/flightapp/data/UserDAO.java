@@ -155,7 +155,7 @@ public class UserDAO {
             ps.setInt(6, customer.getId());
 
             int rowsUpdated = ps.executeUpdate();
-            return rowsUpdated == 1; // ✅ true if update succeeded
+            return rowsUpdated == 1;
         }
     }
 

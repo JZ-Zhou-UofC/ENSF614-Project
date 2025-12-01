@@ -36,27 +36,25 @@ public class AgentSelectCustomerDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        // ✅ Load customers into table
         loadCustomers();
 
-        // ✅ Buttons
         JButton btnManageFlights = new JButton("Manage User Flights");
         JButton btnManageProfile = new JButton("Manage User Profile");
-        JButton btnRefresh = new JButton("Refresh");   // ✅ NEW
+        JButton btnRefresh = new JButton("Refresh");  
         JButton btnClose = new JButton("Close");
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottom.add(btnManageFlights);
         bottom.add(btnManageProfile);
-        bottom.add(btnRefresh);       // ✅ NEW
+        bottom.add(btnRefresh);    
         bottom.add(btnClose);
 
         add(bottom, BorderLayout.SOUTH);
 
-        // ✅ Button actions
+
         btnManageFlights.addActionListener(e -> manageCustomerFlights());
         btnManageProfile.addActionListener(e -> manageCustomerProfile());
-        btnRefresh.addActionListener(e -> reloadCustomers());     // ✅ NEW
+        btnRefresh.addActionListener(e -> reloadCustomers());    
         btnClose.addActionListener(e -> dispose());
     }
 
@@ -74,9 +72,7 @@ public class AgentSelectCustomerDialog extends JDialog {
         }
     }
 
-    // ============================
-    // ✅ MANUAL REFRESH ONLY
-    // ============================
+
     private void reloadCustomers() {
         try {
             List<Customer> list = userDAO.findAllCustomers();

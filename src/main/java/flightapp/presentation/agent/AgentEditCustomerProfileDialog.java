@@ -14,14 +14,14 @@ public class AgentEditCustomerProfileDialog extends JDialog {
 
     private final Customer customer;
 
-    // ✅ Controllers only (NO DAOs in UI)
+ 
     private final UserController userController = new UserController();
     private final PaymentController paymentController = new PaymentController();
 
     private JTextField txtFirstName;
     private JTextField txtLastName;
     private JTextField txtPhone;
-    private JComboBox<String> cmbPayment; // ✅ Only 2 options
+    private JComboBox<String> cmbPayment; 
 
     public AgentEditCustomerProfileDialog(Window parent, Customer customer) {
         super(parent, "Edit Customer Profile", ModalityType.APPLICATION_MODAL);
@@ -32,7 +32,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         setLayout(new BorderLayout(10, 10));
 
         initUI();
-        loadExistingPaymentMethod(); // ✅ LOAD FROM DB
+        loadExistingPaymentMethod(); 
     }
 
     // ============================
@@ -46,7 +46,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         txtLastName = new JTextField(customer.getLastName());
         txtPhone = new JTextField(customer.getPhone() != null ? customer.getPhone() : "");
 
-        // ✅ Only valid DB options
+
         cmbPayment = new JComboBox<>(new String[] { "Credit Card", "PayPal" });
 
         form.add(new JLabel("First Name:"));
@@ -75,9 +75,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
-    // ============================
-    // ✅ LOAD EXISTING PAYMENT FROM DB
-    // ============================
+
     private void loadExistingPaymentMethod() {
         try {
             ArrayList<PaymentMethod> methods = paymentController.getPaymentMethods(customer);
@@ -97,14 +95,13 @@ public class AgentEditCustomerProfileDialog extends JDialog {
     // ============================
     private void saveCustomer() {
 
-        // ✅ Validation
+
         if (txtFirstName.getText().isBlank() || txtLastName.getText().isBlank()) {
             JOptionPane.showMessageDialog(this,
                     "First name and last name are required.");
             return;
         }
 
-        // ✅ Update Customer object
         customer.setFirstName(txtFirstName.getText().trim());
         customer.setLastName(txtLastName.getText().trim());
         customer.setPhone(txtPhone.getText().trim());
@@ -112,7 +109,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
         String selectedPayment = (String) cmbPayment.getSelectedItem();
 
         try {
-            // ✅ 1. Update USER using CONTROLLER
+   
             boolean success = userController.AgentUpdateUser(customer);
 
             if (!success) {
@@ -121,7 +118,7 @@ public class AgentEditCustomerProfileDialog extends JDialog {
                 return;
             }
 
-            // ✅ 2. Update PAYMENT using CONTROLLER (by UserID)
+   
             paymentController.updatePaymentMethod(customer, selectedPayment);
 
             JOptionPane.showMessageDialog(this,

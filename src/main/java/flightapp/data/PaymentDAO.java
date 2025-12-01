@@ -76,7 +76,7 @@ public class PaymentDAO {
             ps.setInt(2, customer.getId());
 
             int rows = ps.executeUpdate();
-            return rows >= 1; // ✅ allow multiple rows updated
+            return rows >= 1; 
         }
     }
 
