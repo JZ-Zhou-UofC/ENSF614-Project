@@ -211,8 +211,8 @@ public class MainWindow extends JFrame {
 
         // ✅ Everyone can search
         JButton btnSearchFlights = new JButton("Search Flights");
-        btnSearchFlights.addActionListener(e ->
-                new FlightSearchDialog(this, flightController).setVisible(true)
+            btnSearchFlights.addActionListener(e ->
+            new FlightSearchDialog(this, flightController,bookingController,currentUser).setVisible(true)
         );
         center.add(btnSearchFlights);
 
