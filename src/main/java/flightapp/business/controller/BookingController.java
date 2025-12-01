@@ -19,7 +19,7 @@ public class BookingController {
 
     public BookingController() {
         this.reservationDAO = new ReservationDAO();
-        this.flightDAO = new FlightDAO();
+        this.flightDAO = new FlightDAO(); 
         this.flightSeatDAO = new FlightSeatDAO();
     }
 

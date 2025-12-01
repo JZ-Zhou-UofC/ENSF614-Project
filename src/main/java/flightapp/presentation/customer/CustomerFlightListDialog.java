@@ -5,6 +5,7 @@ import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
 import flightapp.business.domain.Reservation;
+import flightapp.presentation.agent.SeatSelectionDialog;
 import flightapp.presentation.general.FlightTableModel;
 import flightapp.presentation.general.ReservationTableModel;
 
@@ -88,8 +89,14 @@ public class CustomerFlightListDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) tableAvailable.getModel()).getFlightAt(row);
 
-        new BookingDialog(this, currentCustomer, flight, bookingController).setVisible(true);
-
+        // new BookingDialog(this, currentCustomer, flight, bookingController).setVisible(true);
+        new SeatSelectionDialog(
+                this,
+                currentCustomer,
+                currentCustomer,
+                flight,
+                bookingController
+        ).setVisible(true);
         refreshBookings();
     }
 

@@ -133,7 +133,8 @@ CREATE TABLE flight_seats (
 
 INSERT INTO flight_seats (flight_id, seat_id, reserved) VALUES
 (1,1,FALSE),(1,2,FALSE),(1,3,FALSE),
-(1,4,FALSE),(1,5,FALSE),(1,6,FALSE);
+(1,4,FALSE),(1,5,FALSE),(1,6,FALSE),
+(2,1,FALSE),(2,2,FALSE),(2,3,FALSE);
 
 -- 
 -- reservations
@@ -164,7 +165,9 @@ INSERT INTO reservations (
     booked_at, modified_at,
     booked_by_user_id, modified_by_user_id
 ) VALUES
-(1, 1, 1, '2025-01-25 12:00:00', NULL, 3, NULL);
+(1, 1, 1, '2025-01-25 12:00:00', NULL, 3, NULL),
+(1, 1, 2, '2025-01-25 12:00:00', NULL, 3, NULL),
+(1, 1, 3, '2025-01-25 12:00:00', NULL, 3, NULL);
 
 -- promotions
 CREATE TABLE promotions (
@@ -191,3 +194,31 @@ CREATE TABLE promotions (
 INSERT INTO promotions (creator_id, customer_id, content) VALUES
 (3, 1, '20% off your next flight!'),
 (3, 2, 'Winter travel sale – limited time!');
+
+create table user_payment_information(
+id int not null AUTO_INCREMENT primary key, 
+UserID int not null, 
+PaymentMethod varchar(50) not null, 
+foreign key (UserID) references users(id)
+on delete cascade); 
+
+create table booking_payments(
+PaymentInformationID int not null, 
+ReservationID int not null, 
+primary key (PaymentInformationID, ReservationID),
+foreign key (PaymentInformationID) references user_payment_information(id),
+foreign key (ReservationID) references reservations(id)
+on delete cascade); 
+
+insert into user_payment_information(id,userid,paymentmethod) values
+(1,1,"Credit Card"),
+(2,1,"PayPal"),
+(3,2,"Credit Card"),
+(4,3,"PayPal"),
+(5,3,"Credit Card"),
+(6,4,"Credit Card"); 
+
+insert into booking_payments(paymentinformationid,reservationid) values
+(1,1),
+(2,2),
+(1,3);
