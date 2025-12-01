@@ -25,7 +25,7 @@ public class UserDAO {
         return null;
     }
 
-
+    // find user by email
     public User findByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM users WHERE email = ?";
 
@@ -43,7 +43,7 @@ public class UserDAO {
         return null;
     }
 
-
+    // get all customers
     public List<Customer> findAllCustomers() throws SQLException {
         String sql = "SELECT * FROM users WHERE role = 'CUSTOMER'";
         List<Customer> list = new ArrayList<>();
@@ -60,7 +60,7 @@ public class UserDAO {
         return list;
     }
 
-
+    // insert a customer into db
     public Customer registerCustomer(String firstName, String lastName, String email, boolean subscribed)
             throws SQLException {
 
@@ -90,7 +90,7 @@ public class UserDAO {
         throw new SQLException("Failed to create customer: no ID returned.");
     }
 
-
+    // insert admin into db
     public Admin registerAdmin(String firstName, String lastName, String email) throws SQLException {
         String sql = """
                 INSERT INTO users (first_name, last_name, email, role)
@@ -116,7 +116,7 @@ public class UserDAO {
         throw new SQLException("Failed to create admin: no ID returned.");
     }
 
-
+    // insert an agent into db
     public Agent registerAgent(String firstName, String lastName, String email) throws SQLException {
         String sql = """
                 INSERT INTO users (first_name, last_name, email, role)
@@ -142,7 +142,7 @@ public class UserDAO {
         throw new SQLException("Failed to create agent: no ID returned.");
     }
 
-
+    // map user row to user object
     private User mapRow(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String first = rs.getString("first_name");

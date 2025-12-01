@@ -29,9 +29,7 @@ public class FlightSearchDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        //
-        // --- TOP SEARCH PANEL ---
-        //
+        // top panel
         JPanel top = new JPanel();
         top.add(new JLabel("From:"));
         top.add(txtOrigin);
@@ -45,9 +43,7 @@ public class FlightSearchDialog extends JDialog {
 
         add(top, BorderLayout.NORTH);
 
-        //
-        // --- TABLE ---
-        //
+        // table
         tableModel = new DefaultTableModel(
                 new Object[]{"Origin", "Destination", "Departure", "Arrival", "Price", "Seats"},
                 0
@@ -63,9 +59,7 @@ public class FlightSearchDialog extends JDialog {
 
         add(new JScrollPane(tblFlights), BorderLayout.CENTER);
 
-        //
-        // --- BOTTOM CLOSE BUTTON ---
-        //
+        // bottom buttom
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnClose = new JButton("Close");
         btnClose.addActionListener(e -> dispose());
@@ -73,9 +67,7 @@ public class FlightSearchDialog extends JDialog {
 
         add(bottom, BorderLayout.SOUTH);
 
-        //
-        // EVENT LISTENERS
-        //
+
         btnSearch.addActionListener(e -> doSearch());
     }
 
@@ -95,7 +87,6 @@ public class FlightSearchDialog extends JDialog {
         }
 
         try {
-            // ⭐ Use controller, not DAO
             List<Flight> flights = flightController.searchFlights(origin, dest, date);
 
             tableModel.setRowCount(0);

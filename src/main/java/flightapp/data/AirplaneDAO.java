@@ -67,7 +67,7 @@ public class AirplaneDAO {
         }
     }
 
-
+    // helper method that maps the airplane info to an airplane object
     private Airplane mapRow(ResultSet rs) throws SQLException {
         Airplane plane = new Airplane();
 
@@ -78,7 +78,6 @@ public class AirplaneDAO {
         plane.setSeatLetters(lettersString.toCharArray());
 
 
-        // Load seats for this airplane (from seat table)
         List<Seat> seats = seatDAO.findByAirplaneId(plane.getId());
         plane.setSeats(seats);
 

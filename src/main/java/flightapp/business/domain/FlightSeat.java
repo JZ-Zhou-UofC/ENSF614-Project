@@ -29,7 +29,7 @@ public class FlightSeat {
         this.reserved = reserved;
     }
 
-    // ===== Getters =====
+    // Getters
     public int getId() {
         return id;
     }
@@ -46,7 +46,7 @@ public class FlightSeat {
         return reserved;
     }
 
-    // ===== Setters =====
+    // Setters
     public void setId(int id) {
         this.id = id;
     }

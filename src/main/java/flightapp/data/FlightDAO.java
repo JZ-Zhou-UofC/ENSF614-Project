@@ -8,7 +8,7 @@ import java.util.List;
 
 public class FlightDAO {
 
-    // INSERT new flight
+    // insert new flight
     public Flight insert(Flight flight) throws SQLException {
         String sql = """
             INSERT INTO flights 
@@ -45,7 +45,7 @@ public class FlightDAO {
         return flight;
     }
 
-    // UPDATE existing flight
+    // update existing flight
     public Flight update(Flight flight) throws SQLException {
         String sql = """
             UPDATE flights SET
@@ -78,7 +78,7 @@ public class FlightDAO {
         return flight;
     }
 
-    // DELETE flight
+    // delete flight
     public void delete(int flightId) throws SQLException {
         String sql = "DELETE FROM flights WHERE id = ?";
 
@@ -90,7 +90,7 @@ public class FlightDAO {
         }
     }
 
-    // GET flight by ID
+    // get flight by ID
     public Flight findById(int id) throws SQLException {
         String sql = "SELECT * FROM flights WHERE id = ?";
 
@@ -109,7 +109,7 @@ public class FlightDAO {
         return null;
     }
 
-    // GET all flights
+    // get all flights
     public List<Flight> findAll() throws SQLException {
         String sql = "SELECT * FROM flights";
 
@@ -127,7 +127,7 @@ public class FlightDAO {
         return flights;
     }
 
-    // Map ResultSet → Flight object (code written by ChatGPT)
+    // Map ResultSet to Flight object 
     private Flight mapRow(ResultSet rs) throws SQLException {
         Flight f = new Flight();
 

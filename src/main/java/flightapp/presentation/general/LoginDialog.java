@@ -37,9 +37,7 @@ public class LoginDialog extends JDialog {
 
     private void initUI() {
 
-        //
-        // LEFT PANEL (Email Input)
-        //
+        // left panel
         JPanel leftPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -74,9 +72,7 @@ public class LoginDialog extends JDialog {
         leftPanel.add(buttonPanel, gbc);
 
 
-        //
-        // RIGHT PANEL (Two-line Test User List)
-        //
+        // right panel
         DefaultListModel<TestUser> listModel = new DefaultListModel<>();
         testUsers.forEach(listModel::addElement);
 
@@ -84,7 +80,6 @@ public class LoginDialog extends JDialog {
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         userList.setVisibleRowCount(8);
 
-        // 2-line cell renderer
         userList.setCellRenderer(new ListCellRenderer<TestUser>() {
             @Override
             public Component getListCellRendererComponent(
@@ -122,9 +117,7 @@ public class LoginDialog extends JDialog {
         scrollPane.setPreferredSize(new Dimension(250, 250));
 
 
-        //
-        // MAIN PANEL (Left Email Input + Right User List)
-        //
+        // main panel
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
@@ -133,9 +126,7 @@ public class LoginDialog extends JDialog {
 
         setContentPane(mainPanel);
 
-        //
-        // FINAL WINDOW SETTINGS
-        //
+        // final window settings
         setSize(650, 350);
         setLocationRelativeTo(getOwner());
     }

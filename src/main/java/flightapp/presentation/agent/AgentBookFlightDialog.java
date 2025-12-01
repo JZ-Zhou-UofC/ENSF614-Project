@@ -75,7 +75,7 @@ public class AgentBookFlightDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) table.getModel()).getFlightAt(row);
 
-        // NEW: seat selection dialog
+        // seat selection dialog
         new SeatSelectionDialog(
                 this,
                 agentUser,

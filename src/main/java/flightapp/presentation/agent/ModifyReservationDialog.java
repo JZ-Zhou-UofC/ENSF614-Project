@@ -54,7 +54,6 @@ public class ModifyReservationDialog extends JDialog {
 
         Flight flight = reservation.getFlight();
 
-        // Flight is NOT editable
         panel.add(new JLabel("Flight:"));
         panel.add(new JLabel(
                 flight.getOrigin() + " → " + flight.getDestination()
@@ -80,11 +79,10 @@ public class ModifyReservationDialog extends JDialog {
             List<FlightSeat> allSeats = flightSeatDAO.findByFlight(reservation.getFlight().getId());
 
             List<String> freeSeats = allSeats.stream()
-                    .filter(fs -> !fs.isReserved())              // only free seats
+                    .filter(fs -> !fs.isReserved()) 
                     .map(fs -> fs.getSeat().getSeatLabel())
                     .collect(Collectors.toList());
 
-            // Remove current seat (it can't be selected)
             freeSeats.remove(reservation.getSeatLabel());
 
             for (String seat : freeSeats) {

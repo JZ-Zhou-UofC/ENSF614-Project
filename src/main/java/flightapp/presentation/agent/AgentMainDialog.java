@@ -15,9 +15,7 @@ public class AgentMainDialog extends JDialog {
     private final BookingController bookingController;
     private final PromotionController promotionController;
 
-    // 👇 Signature now matches how you call it:
-    // new AgentMainDialog(this, flightController, bookingController, promotionController, (Agent) currentUser)
-    public AgentMainDialog(
+public AgentMainDialog(
             Window parent,
             FlightController flightController,
             BookingController bookingController,

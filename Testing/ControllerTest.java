@@ -13,7 +13,7 @@ public class ControllerTest {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("***** RUNNING CONTROLLER TESTS ****");
+        System.out.println("***** controller tests ****");
 
         // create DAOs
         FlightDAO flightDAO = new FlightDAO();
@@ -35,7 +35,7 @@ public class ControllerTest {
 
         // 
         // get an airplane
-        System.out.println("\n--- STEP 1: FETCH EXISTING AIRPLANE FROM DB ---");
+        System.out.println("\nget an airplane from the db");
 
         Airplane plane = null;
 
@@ -61,7 +61,7 @@ public class ControllerTest {
 
 
         // creaet flight
-        System.out.println("\n--- TEST 1: CREATE FLIGHT ---");
+        System.out.println("\n create a flight");
 
         Flight flight = new Flight();
         flight.setOrigin("Calgary");
@@ -87,7 +87,7 @@ public class ControllerTest {
 
 
         //  book seat
-        System.out.println("\n--- TEST 2: BOOK SEAT ---");
+        System.out.println("\n book a seat");
 
         // get a customer
         List<Customer> customers = userDAO.findAllCustomers();
@@ -135,7 +135,7 @@ public class ControllerTest {
 
 
         // cancel reservation
-        System.out.println("\n--- TEST 3: CANCEL RESERVATION ---");
+        System.out.println("\n cancel a reservation");
 
         try {
             bookingController.cancelReservation(reservation);
@@ -162,6 +162,6 @@ public class ControllerTest {
         }
 
 
-        System.out.println("\n***** TESTING COMPLETE *****");
+        System.out.println("\n***** Ttesting finished *****");
     }
 }

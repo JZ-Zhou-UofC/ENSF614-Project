@@ -96,7 +96,7 @@ public class FlightController {
 
     
     
-
+    // search for flights
     public List<Flight> searchFlights(String origin, String destination, LocalDate date) throws SQLException {
         List<Flight> all = flightDAO.findAll();
 

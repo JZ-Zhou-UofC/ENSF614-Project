@@ -30,9 +30,8 @@ public class StartupDialog extends JDialog {
         title.setFont(new Font("Arial", Font.BOLD, 16));
         add(title, BorderLayout.NORTH);
 
-        // =============================
-        // ✅ FIRST ROW — ROLE BUTTONS
-        // =============================
+   
+
         JPanel roleRow = new JPanel(new GridLayout(1, 3, 15, 10));
 
         JButton btnCustomer = new JButton("Customer / Guest");
@@ -47,9 +46,8 @@ public class StartupDialog extends JDialog {
         roleRow.add(btnAgent);
         roleRow.add(btnAdmin);
 
-        // =============================
-        // ✅ SECOND ROW — SIGN UP
-        // =============================
+
+
         JPanel signupRow = new JPanel();
         JButton btnSignUp = new JButton("Sign Up");
 
@@ -59,9 +57,8 @@ public class StartupDialog extends JDialog {
 
         signupRow.add(btnSignUp);
 
-        // =============================
-        // Layout wrapper
-        // =============================
+
+
         JPanel center = new JPanel(new GridLayout(2, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         center.add(roleRow);
@@ -72,7 +69,7 @@ public class StartupDialog extends JDialog {
 
     private void select(RunMode mode) {
         this.selectedMode = mode;
-        dispose(); // ✅ close startup dialog
+        dispose();
     }
 
     public RunMode getSelectedMode() {

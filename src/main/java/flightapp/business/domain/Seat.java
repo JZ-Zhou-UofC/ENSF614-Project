@@ -14,7 +14,7 @@ public class Seat {
         this.airplaneId = airplaneId;
         this.row = row;
         this.letter = letter;
-        this.seatType = "Economy"; // planning to only use this constructor fornow
+        this.seatType = "Economy"; // default value for all seats, until future implemetation
     }
 
     // cant use this until we implement Class Fare functionality

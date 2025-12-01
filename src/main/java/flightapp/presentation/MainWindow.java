@@ -26,7 +26,6 @@ public class MainWindow extends JFrame {
 
     private User currentUser;
 
-    // ✅ Selected from StartupDialog
     private StartupDialog.RunMode runMode;
 
     // Controllers
@@ -48,18 +47,13 @@ public class MainWindow extends JFrame {
         this.bookingController = new BookingController();
         this.promotionController = new PromotionController();
 
-        // ✅ Custom first screen with:
-        // [Customer] [Agent] [Admin]
-        // [Sign Up]
         initStartupFlow();
 
         initUI();
         rebuildCenterPanel();
     }
 
-    // ======================================================
-    // ✅ STARTUP FLOW (CUSTOM UI, NOT JOptionPane)
-    // ======================================================
+    // startup
     private void initStartupFlow() {
 
         StartupDialog startup = new StartupDialog(this, userController);
@@ -72,13 +66,10 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        // ✅ AFTER role is chosen → FORCE LoginDialog
         doLogin();
     }
 
-    // ======================================================
-    // ✅ LOGIN VIA LoginDialog (ONLY WAY TO GET currentUser)
-    // ======================================================
+    // login with dialog
     private void doLogin() {
 
         LoginDialog dialog = new LoginDialog(this);
@@ -98,7 +89,6 @@ public class MainWindow extends JFrame {
                 return;
             }
 
-            // ✅ HARD role enforcement
             if (runMode == StartupDialog.RunMode.CUSTOMER && !(user instanceof Customer) ||
                 runMode == StartupDialog.RunMode.AGENT && !(user instanceof Agent) ||
                 runMode == StartupDialog.RunMode.ADMIN && !(user instanceof Admin)) {
@@ -117,20 +107,15 @@ public class MainWindow extends JFrame {
         }
     }
 
-    // ======================================================
-    // ✅ MAIN UI
-    // ======================================================
-
+    // main UI
     private JPanel buildHeaderPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         panel.setBackground(new Color(245, 245, 245));
 
-        // ===== LEFT SIDE (App Title) =====
         JLabel lblTitle = new JLabel("FlightApp");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
 
-        // ===== CENTER (User Info) =====
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setOpaque(false);
@@ -151,7 +136,6 @@ public class MainWindow extends JFrame {
         userPanel.add(email);
         userPanel.add(lblRole);
 
-        // ===== RIGHT: Logout =====
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         right.setOpaque(false);
         right.add(btnLogout);
@@ -171,52 +155,39 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // ================= TOP PANEL =================
         btnLogout = new JButton("Logout");
         btnLogout.addActionListener(e -> doLogout());
 
         JPanel right = new JPanel();
         right.add(btnLogout);
 
-        // lblCurrentUser.setText("<html>Logged in as:<br>" + currentUser + "</html>");
 
-        // JPanel top = new JPanel(new BorderLayout());
-        // top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // top.add(lblCurrentUser, BorderLayout.CENTER);
-        // top.add(right, BorderLayout.EAST);
-
-        // add(top, BorderLayout.NORTH);
         add(buildHeaderPanel(), BorderLayout.NORTH);
 
-        // ================= CENTER PANEL =================
         center = new JPanel(new GridLayout(4, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(center, BorderLayout.CENTER);
     }
 
-    // ======================================================
-    // ✅ LOGOUT → RESTART EVERYTHING
-    // ======================================================
+    // logout
     private void doLogout() {
         dispose();
         new MainWindow().setVisible(true);
     }
 
-    // ======================================================
-    // ✅ ROLE-BASED UI (NO GREYED BUTTONS)
-    // ======================================================
+
     private void rebuildCenterPanel() {
 
         center.removeAll();
 
-        // ✅ Everyone can search
+        // Everyone can search
         JButton btnSearchFlights = new JButton("Search Flights");
         btnSearchFlights.addActionListener(e ->
                 new FlightSearchDialog(this, flightController).setVisible(true)
         );
         center.add(btnSearchFlights);
 
-        // ✅ CUSTOMER
+        // customer
         if (currentUser instanceof Customer customer) {
             JButton btnBook = new JButton("Book a Flight");
             btnBook.addActionListener(e ->
@@ -230,7 +201,7 @@ public class MainWindow extends JFrame {
             center.add(btnBook);
         }
 
-        // ✅ AGENT
+        // agent
         if (currentUser instanceof Agent agent) {
             JButton btnAgentPanel = new JButton("Agent Panel");
             btnAgentPanel.addActionListener(e ->
@@ -245,7 +216,7 @@ public class MainWindow extends JFrame {
             center.add(btnAgentPanel);
         }
 
-        // ✅ ADMIN
+        // admin
         if (currentUser instanceof Admin admin) {
             JButton btnAdminPanel = new JButton("Admin: Manage Flights");
             btnAdminPanel.addActionListener(e ->

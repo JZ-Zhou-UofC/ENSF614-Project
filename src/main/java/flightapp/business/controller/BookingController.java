@@ -10,7 +10,9 @@ import java.util.List;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
+/*
+Booking Controller Class
+*/
 public class BookingController {
 
     private final ReservationDAO reservationDAO;

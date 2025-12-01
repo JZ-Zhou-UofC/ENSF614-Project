@@ -105,7 +105,7 @@ public class ReservationDAO {
         }
     }
 
-
+    // find reservation by ID
     public Reservation findById(int id) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE id = ?";
 
@@ -124,7 +124,7 @@ public class ReservationDAO {
         return null;
     }
 
-
+    // find reservation by customer
     public List<Reservation> findByCustomer(int customerId) throws SQLException {
 
         String sql = "SELECT * FROM reservations WHERE customer_id = ?";
@@ -145,7 +145,7 @@ public class ReservationDAO {
         return list;
     }
 
-
+    // find reservation by flight
     public List<Reservation> findByFlight(int flightId) throws SQLException {
 
         String sql = "SELECT * FROM reservations WHERE flight_id = ?";
@@ -165,7 +165,7 @@ public class ReservationDAO {
 
         return list;
     }
-
+    // map reservation row to reservation object
     private Reservation mapRow(ResultSet rs) throws SQLException {
         Reservation r = new Reservation();
 

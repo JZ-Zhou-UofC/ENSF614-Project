@@ -49,7 +49,6 @@ public class SeatSelectionDialog extends JDialog {
 
         main.add(new JScrollPane(txtDetails), BorderLayout.CENTER);
 
-        // -------- LOAD AVAILABLE SEATS --------
         try {
             availableSeats = flightSeatDAO.findByFlight(flight.getId())
                     .stream().filter(fs -> !fs.isReserved())

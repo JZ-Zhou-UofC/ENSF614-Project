@@ -5,6 +5,10 @@ import flightapp.data.PaymentDAO;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
+
+/*
+Payment Controller Class
+*/
 public class PaymentController {
     private final PaymentDAO paymentDAO; 
 

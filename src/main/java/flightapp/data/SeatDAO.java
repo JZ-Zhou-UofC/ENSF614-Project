@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SeatDAO {
 
-
+    // find seat by ID
     public Seat findById(int id) throws SQLException {
         String sql = "SELECT * FROM seats WHERE id = ?";
 
@@ -28,7 +28,7 @@ public class SeatDAO {
         return null;
     }
 
-
+    // find seat by airplane ID
     public List<Seat> findByAirplaneId(int airplaneId) throws SQLException {
         String sql = "SELECT * FROM seats WHERE airplane_id = ? ORDER BY seat_row, seat_letter";
 
@@ -49,8 +49,8 @@ public class SeatDAO {
         return result;
     }
 
-
-    public Seat save(Seat seat) throws SQLException {
+    // insert seat into db
+    public Seat insert(Seat seat) throws SQLException {
         String sql = """
             INSERT INTO seats (airplane_id, seat_row, seat_letter, seat_type)
             VALUES (?, ?, ?, ?)
@@ -76,7 +76,7 @@ public class SeatDAO {
         return seat;
     }
 
-
+    // insert list of seats into db
     public void saveAll(List<Seat> seats) throws SQLException {
         String sql = """
             INSERT INTO seats (airplane_id, seat_row, seat_letter, seat_type)
@@ -98,7 +98,7 @@ public class SeatDAO {
         }
     }
 
-
+    // map seat row to seat object
     private Seat mapRow(ResultSet rs) throws SQLException {
         Seat seat = new Seat();
 
@@ -110,7 +110,4 @@ public class SeatDAO {
 
         return seat;
     }
-
-
-
 }

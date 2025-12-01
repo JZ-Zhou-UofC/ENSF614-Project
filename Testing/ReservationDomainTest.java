@@ -2,7 +2,6 @@ package flightapp.business.domain;
 
 import java.time.LocalDateTime;
 
-// Testing for Seat-FlightSeat-Airplane-Customer-Reservation integration
 
 
 public class ReservationDomainTest {
@@ -12,15 +11,15 @@ public class ReservationDomainTest {
                 "william.watson@ucalgary.ca", "123-4567");
         System.out.println(c);
 
-                // 2. Create airplane
+                // Create airplane
         Airplane airplane = new Airplane(10,30, new char[] {'A','B','C','D','E','F'});
         System.out.println("Airplane: " + airplane);
 
-        // 3. Pick seat
+        // Pick seat
         Seat seat = airplane.getSeatByLabel("12C");
         System.out.println("Picked seat: " + seat);
 
-        // 4. Create flight
+        // Create flight
         Flight flight = new Flight();
         flight.setId(100);
         flight.setOrigin("Calgary");

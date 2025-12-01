@@ -89,7 +89,6 @@ public class CustomerFlightListDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) tableAvailable.getModel()).getFlightAt(row);
 
-        // new BookingDialog(this, currentCustomer, flight, bookingController).setVisible(true);
         new SeatSelectionDialog(
                 this,
                 currentCustomer,

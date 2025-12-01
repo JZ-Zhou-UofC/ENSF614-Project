@@ -19,7 +19,6 @@ public class PromotionController {
     private final List<PromotionObserver> observers;
     private final UserDAO userDAO;
 
-    // ✅ Default Constructor
     public PromotionController() {
         this.observers = new ArrayList<>();
         this.userDAO = new UserDAO();
@@ -27,9 +26,6 @@ public class PromotionController {
     }
 
    
-    // ========================
-    // ✅ OBSERVER MANAGEMENT
-    // ========================
 
     /**
      * Registers a customer as an observer (subscriber).
@@ -47,9 +43,6 @@ public class PromotionController {
         return observers.size();
     }
 
-    // ========================
-    // ✅ DATABASE LOADING
-    // ========================
 
     /**
      * Loads all subscribed customers from the database and registers them.
@@ -64,9 +57,6 @@ public class PromotionController {
         }
     }
 
-    // ========================
-    // ✅ PROMOTION SENDING
-    // ========================
 
     /**
      * Sends a monthly promotion message to all subscribed customers.
@@ -82,11 +72,9 @@ public class PromotionController {
         for (PromotionObserver observer : observers) {
 
             try {
-                // ✅ Send notification
                 observer.update(promotionMessage);
                 notifiedEmails.add(observer.getEmail());
 
-                // ✅ Save to database
                 int customerId = ((CustomerPromotionObserver) observer)
                         .getCustomer()
                         .getId();
