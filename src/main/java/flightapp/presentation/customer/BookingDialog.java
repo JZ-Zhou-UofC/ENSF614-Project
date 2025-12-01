@@ -48,7 +48,7 @@ public class BookingDialog extends JDialog {
     		this.paymentSelector.addItem(payMethds.get(i).getStrType()); 
     	    }
         }catch(SQLException e){
-            JOptionPane.showMessageDialog(this, "No payment options\n" + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Warning, no payment options saved to account\n");
         }
     }
 
@@ -126,6 +126,9 @@ public class BookingDialog extends JDialog {
 
         try {
             Reservation r = bookingController.bookForCustomer(customer, flight, chosen.getSeat());
+            String selectedPaymentMethod = (String) paymentSelector.getSelectedItem(); 
+            System.out.println(selectedPaymentMethod);
+            paymentController.makePayment(r, selectedPaymentMethod, customer);
             JOptionPane.showMessageDialog(this,
                     "Seat booked! Reservation ID: " + r.getId(),
                     "Success", JOptionPane.INFORMATION_MESSAGE);

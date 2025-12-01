@@ -44,4 +44,18 @@ public class PaymentDAO {
             ps.executeUpdate();
         }
     }
+
+    public void savePaymentMethod(User customer, String paymentMethod) throws SQLException{
+        String sql = """
+            INSERT INTO user_payment_information(UserID,PaymentMethod)
+            VALUES(?,?)
+            """;
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, customer.getId());
+                ps.setString(2, paymentMethod);
+
+                ps.executeUpdate();
+        }
+    }
 }

@@ -219,6 +219,6 @@ insert into user_payment_information(id,userid,paymentmethod) values
 (6,4,"Credit Card"); 
 
 insert into booking_payments(paymentinformationid,reservationid) values
-(4,1),
-(5,2),
-(4,3);
+(1,1),
+(2,2),
+(1,3);
