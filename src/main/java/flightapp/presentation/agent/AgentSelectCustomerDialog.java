@@ -36,39 +36,69 @@ public class AgentSelectCustomerDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
+        // ✅ Load customers into table
         loadCustomers();
 
-        JButton btnSelect = new JButton("Manage Customer");
+        // ✅ Buttons
+        JButton btnManageFlights = new JButton("Manage User Flights");
+        JButton btnManageProfile = new JButton("Manage User Profile");
+        JButton btnRefresh = new JButton("Refresh");   // ✅ NEW
         JButton btnClose = new JButton("Close");
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottom.add(btnSelect);
+        bottom.add(btnManageFlights);
+        bottom.add(btnManageProfile);
+        bottom.add(btnRefresh);       // ✅ NEW
         bottom.add(btnClose);
 
         add(bottom, BorderLayout.SOUTH);
 
-        btnSelect.addActionListener(e -> selectCustomer());
+        // ✅ Button actions
+        btnManageFlights.addActionListener(e -> manageCustomerFlights());
+        btnManageProfile.addActionListener(e -> manageCustomerProfile());
+        btnRefresh.addActionListener(e -> reloadCustomers());     // ✅ NEW
         btnClose.addActionListener(e -> dispose());
     }
 
+    // ============================
+    // LOAD ALL CUSTOMERS (INITIAL)
+    // ============================
     private void loadCustomers() {
         try {
             List<Customer> list = userDAO.findAllCustomers();
             table = new JTable(new AgentCustomerTableModel(list));
             add(new JScrollPane(table), BorderLayout.CENTER);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error loading customers:\n" + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error loading customers:\n" + ex.getMessage());
         }
     }
 
-    private void selectCustomer() {
+    // ============================
+    // ✅ MANUAL REFRESH ONLY
+    // ============================
+    private void reloadCustomers() {
+        try {
+            List<Customer> list = userDAO.findAllCustomers();
+            table.setModel(new AgentCustomerTableModel(list));
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error refreshing customers:\n" + ex.getMessage());
+        }
+    }
+
+    // ============================
+    // MANAGE CUSTOMER FLIGHTS
+    // ============================
+    private void manageCustomerFlights() {
         int row = table.getSelectedRow();
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Please select a customer.");
             return;
         }
 
-        Customer customer = ((AgentCustomerTableModel) table.getModel()).getCustomerAt(row);
+        Customer customer =
+                ((AgentCustomerTableModel) table.getModel()).getCustomerAt(row);
 
         new AgentManageCustomerDialog(
                 this,
@@ -79,5 +109,21 @@ public class AgentSelectCustomerDialog extends JDialog {
         ).setVisible(true);
 
         dispose();
+    }
+
+    // ============================
+    // MANAGE CUSTOMER PROFILE
+    // ============================
+    private void manageCustomerProfile() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a customer.");
+            return;
+        }
+
+        Customer customer =
+                ((AgentCustomerTableModel) table.getModel()).getCustomerAt(row);
+
+        new AgentEditCustomerProfileDialog(this, customer).setVisible(true);
     }
 }
