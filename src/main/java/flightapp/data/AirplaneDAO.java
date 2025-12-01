@@ -78,7 +78,7 @@ public class AirplaneDAO {
         plane.setSeatLetters(lettersString.toCharArray());
 
 
-        // Load seats for this airplane (from seat table)
+        // Load seats for this airplane 
         List<Seat> seats = seatDAO.findByAirplaneId(plane.getId());
         plane.setSeats(seats);
 

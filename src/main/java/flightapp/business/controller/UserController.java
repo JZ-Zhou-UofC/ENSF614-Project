@@ -25,7 +25,7 @@ public class UserController {
      * Let MainWindow set currentUser itself.
      */
     public User loginByEmail(String email) throws SQLException {
-        return userDAO.findByEmail(email); // no AppSession anymore
+        return userDAO.findByEmail(email); 
     }
 
     public User register(String firstName, String lastName, String email, boolean subscribed) throws SQLException {

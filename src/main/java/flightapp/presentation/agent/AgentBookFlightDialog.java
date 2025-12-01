@@ -5,7 +5,6 @@ import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Agent;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.Flight;
-import flightapp.business.domain.Reservation;
 import flightapp.presentation.general.FlightTableModel;
 
 import javax.swing.*;
@@ -75,7 +74,7 @@ public class AgentBookFlightDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) table.getModel()).getFlightAt(row);
 
-        // NEW: seat selection dialog
+        // seat selection dialog
         new SeatSelectionDialog(
                 this,
                 agentUser,
