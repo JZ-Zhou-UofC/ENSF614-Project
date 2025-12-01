@@ -24,7 +24,6 @@ public class BookingDialog extends JDialog {
     private final BookingController bookingController;
     private final PaymentController paymentController; 
 
-    private final JSpinner seatSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
     JComboBox<String> paymentSelector; 
     private JComboBox<String> seatDropdown;
     private List<FlightSeat> availableSeats;
@@ -61,7 +60,6 @@ public class BookingDialog extends JDialog {
 
         main.add(new JScrollPane(txtDetails), BorderLayout.CENTER);
 
-        // -------- LOAD AVAILABLE SEATS --------
         try {
             availableSeats = flightSeatDAO.findByFlight(flight.getId())
                     .stream().filter(fs -> !fs.isReserved())

@@ -55,9 +55,6 @@ public class StartupDialog extends JDialog {
 
         signupRow.add(btnSignUp);
 
-        // =============================
-        // Layout wrapper
-        // =============================
         JPanel center = new JPanel(new GridLayout(2, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         center.add(roleRow);

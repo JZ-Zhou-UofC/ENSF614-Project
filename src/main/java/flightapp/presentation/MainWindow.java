@@ -28,14 +28,11 @@ public class MainWindow extends JFrame {
 
     private StartupDialog.RunMode runMode;
 
-    // Controllers
     private final UserController userController;
     private final BookingController bookingController;
     private final FlightController flightController;
     private final PromotionController promotionController;
 
-    // UI
-    private final JLabel lblCurrentUser = new JLabel();
     private JButton btnLogout;
     private JPanel center;
 
@@ -47,8 +44,7 @@ public class MainWindow extends JFrame {
         this.bookingController = new BookingController();
         this.promotionController = new PromotionController();
 
-        // [Customer] [Agent] [Admin]
-        // [Sign Up]
+
         initStartupFlow();
 
         initUI();
@@ -116,11 +112,9 @@ public class MainWindow extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         panel.setBackground(new Color(245, 245, 245));
 
-        // ===== LEFT SIDE (App Title) =====
         JLabel lblTitle = new JLabel("FlightApp");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
 
-        // ===== CENTER (User Info) =====
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setOpaque(false);
@@ -141,12 +135,10 @@ public class MainWindow extends JFrame {
         userPanel.add(email);
         userPanel.add(lblRole);
 
-        // ===== RIGHT: Logout =====
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         right.setOpaque(false);
         right.add(btnLogout);
 
-        // Add everything into main header panel
         panel.add(lblTitle, BorderLayout.WEST);
         panel.add(userPanel, BorderLayout.CENTER);
         panel.add(right, BorderLayout.EAST);
@@ -161,24 +153,14 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // ================= TOP PANEL =================
         btnLogout = new JButton("Logout");
         btnLogout.addActionListener(e -> doLogout());
 
         JPanel right = new JPanel();
         right.add(btnLogout);
 
-        // lblCurrentUser.setText("<html>Logged in as:<br>" + currentUser + "</html>");
-
-        // JPanel top = new JPanel(new BorderLayout());
-        // top.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // top.add(lblCurrentUser, BorderLayout.CENTER);
-        // top.add(right, BorderLayout.EAST);
-
-        // add(top, BorderLayout.NORTH);
         add(buildHeaderPanel(), BorderLayout.NORTH);
 
-        // ================= CENTER PANEL =================
         center = new JPanel(new GridLayout(4, 1, 10, 10));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(center, BorderLayout.CENTER);

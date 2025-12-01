@@ -5,10 +5,7 @@ import flightapp.business.controller.FlightController;
 import flightapp.business.domain.Customer;
 import flightapp.business.domain.User;
 import flightapp.business.domain.Flight;
-import flightapp.business.domain.Reservation;
 import flightapp.presentation.customer.BookingDialog;
-
-import flightapp.presentation.general.FlightTableModel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -40,9 +37,6 @@ public class FlightSearchDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        //
-        // --- TOP SEARCH PANEL ---
-        //
         JPanel top = new JPanel();
         top.add(new JLabel("From:"));
         top.add(txtOrigin);
@@ -56,9 +50,6 @@ public class FlightSearchDialog extends JDialog {
 
         add(top, BorderLayout.NORTH);
 
-        //
-        // --- TABLE ---
-        //
         tableModel = new DefaultTableModel(
                 new Object[]{"Flight Id","Origin", "Destination", "Departure", "Arrival", "Price", "Seats"},
                 0
@@ -74,9 +65,6 @@ public class FlightSearchDialog extends JDialog {
 
         add(new JScrollPane(tblFlights), BorderLayout.CENTER);
 
-        //
-        // --- BOTTOM CLOSE BUTTON ---
-        //
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnClose = new JButton("Close");
 
@@ -91,9 +79,6 @@ public class FlightSearchDialog extends JDialog {
 
         add(bottom, BorderLayout.SOUTH);
 
-        //
-        // EVENT LISTENERS
-        //
         btnSearch.addActionListener(e -> doSearch());
     }
 

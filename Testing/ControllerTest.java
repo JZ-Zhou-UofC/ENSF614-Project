@@ -15,26 +15,20 @@ public class ControllerTest {
 
         System.out.println("***** RUNNING CONTROLLER TESTS ****");
 
-        // create DAOs
         FlightDAO flightDAO = new FlightDAO();
         AirplaneDAO airplaneDAO = new AirplaneDAO();
         FlightSeatDAO flightSeatDAO = new FlightSeatDAO();
         UserDAO userDAO = new UserDAO();
         ReservationDAO reservationDAO = new ReservationDAO();
 
-        // Create controllers
         FlightController flightController =
                 new FlightController(flightDAO, airplaneDAO, flightSeatDAO, reservationDAO);
 
         BookingController bookingController =
                 new BookingController(reservationDAO, flightDAO, flightSeatDAO);
 
-        // Admin performing operations (dummy admin object)
         Admin admin = new Admin(999, "Test", "Admin", "admin@test.com");
 
-
-        // 
-        // get an airplane
         System.out.println("\n--- STEP 1: FETCH EXISTING AIRPLANE FROM DB ---");
 
         Airplane plane = null;
@@ -47,7 +41,6 @@ public class ControllerTest {
             }
             plane = planes.get(0);
 
-            // Load seats for airplane
             List<Seat> seats = new SeatDAO().findByAirplaneId(plane.getId());
             plane.setSeats(seats);
 
@@ -59,8 +52,6 @@ public class ControllerTest {
             return;
         }
 
-
-        // creaet flight
         System.out.println("\n--- TEST 1: CREATE FLIGHT ---");
 
         Flight flight = new Flight();
@@ -70,7 +61,6 @@ public class ControllerTest {
         flight.setArrivalTime(LocalDateTime.now().plusDays(1).plusHours(1));
         flight.setPrice(199.99);
 
-        // assign airplane
         flight.setAirplaneId(plane.getId());
         flight.setSeatsAvailable(0);
 
@@ -85,11 +75,8 @@ public class ControllerTest {
             return;
         }
 
-
-        //  book seat
         System.out.println("\n--- TEST 2: BOOK SEAT ---");
 
-        // get a customer
         List<Customer> customers = userDAO.findAllCustomers();
         if (customers.isEmpty()) {
             System.out.println("FAIL: No customers exist. Add at least one customer.");
@@ -97,7 +84,6 @@ public class ControllerTest {
         }
         Customer cust = customers.get(0);
 
-        // find an unreserved seat
         List<FlightSeat> flightSeats = flightSeatDAO.findByFlight(savedFlight.getId());
         FlightSeat freeSeat = null;
 
@@ -125,7 +111,6 @@ public class ControllerTest {
             return;
         }
 
-        // verify seat is reserved
         FlightSeat check = flightSeatDAO.findById(freeSeat.getId());
         if (check != null && check.isReserved()) {
             System.out.println("PASS: Seat was correctly marked as reserved.");
@@ -133,8 +118,6 @@ public class ControllerTest {
             System.out.println("FAIL: Seat was NOT marked as reserved.");
         }
 
-
-        // cancel reservation
         System.out.println("\n--- TEST 3: CANCEL RESERVATION ---");
 
         try {
@@ -145,7 +128,6 @@ public class ControllerTest {
             return;
         }
 
-        // verify seat is unreserved
         FlightSeat check2 = flightSeatDAO.findById(freeSeat.getId());
         if (check2 != null && !check2.isReserved()) {
             System.out.println("PASS: Seat correctly unreserved after cancellation.");
@@ -153,7 +135,6 @@ public class ControllerTest {
             System.out.println("FAIL: Seat still reserved after cancellation.");
         }
 
-        // verify reservation removed
         Reservation deleted = reservationDAO.findById(reservation.getId());
         if (deleted == null) {
             System.out.println("PASS: Reservation removed from database.");

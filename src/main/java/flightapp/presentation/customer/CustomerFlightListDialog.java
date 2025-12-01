@@ -38,13 +38,11 @@ public class CustomerFlightListDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        // Tabs
         JTabbedPane tabs = new JTabbedPane();
         tabs.add("Available Flights", createAvailableFlightsPanel());
         tabs.add("My Bookings", createMyBookingsPanel());
         add(tabs, BorderLayout.CENTER);
 
-        // Buttons
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnBook = new JButton("Book Selected Flight");
         JButton btnClose = new JButton("Close");
@@ -89,7 +87,6 @@ public class CustomerFlightListDialog extends JDialog {
 
         Flight flight = ((FlightTableModel) tableAvailable.getModel()).getFlightAt(row);
 
-        // new BookingDialog(this, currentCustomer, flight, bookingController).setVisible(true);
         new SeatSelectionDialog(
                 this,
                 currentCustomer,
