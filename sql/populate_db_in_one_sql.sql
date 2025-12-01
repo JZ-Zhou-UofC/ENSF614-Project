@@ -196,7 +196,7 @@ INSERT INTO promotions (creator_id, customer_id, content) VALUES
 (3, 2, 'Winter travel sale – limited time!');
 
 create table user_payment_information(
-id int not null primary key, 
+id int not null AUTO_INCREMENT primary key, 
 UserID int not null, 
 PaymentMethod varchar(50) not null, 
 foreign key (UserID) references users(id)
