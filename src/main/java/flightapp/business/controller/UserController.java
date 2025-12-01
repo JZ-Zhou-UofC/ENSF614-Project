@@ -1,5 +1,6 @@
 package flightapp.business.controller;
 
+import flightapp.business.domain.Customer;
 import flightapp.business.domain.User;
 import flightapp.data.UserDAO;
 
@@ -32,4 +33,7 @@ public class UserController {
         return userDAO.registerCustomer(firstName, lastName, email, subscribed);
     }
 
+    public boolean AgentUpdateUser(Customer customer) throws SQLException {
+        return userDAO.updateCustomer(customer);
+    }
 }

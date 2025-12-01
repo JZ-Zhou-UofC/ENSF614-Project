@@ -12,7 +12,7 @@ public class UserDAO {
         String sql = "SELECT * FROM users WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
@@ -25,12 +25,11 @@ public class UserDAO {
         return null;
     }
 
-    // find user by email
     public User findByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM users WHERE email = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, email);
 
@@ -43,14 +42,13 @@ public class UserDAO {
         return null;
     }
 
-    // get all customers
     public List<Customer> findAllCustomers() throws SQLException {
         String sql = "SELECT * FROM users WHERE role = 'CUSTOMER'";
         List<Customer> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 list.add((Customer) mapRow(rs));
@@ -60,7 +58,6 @@ public class UserDAO {
         return list;
     }
 
-    // insert a customer into db
     public Customer registerCustomer(String firstName, String lastName, String email, boolean subscribed)
             throws SQLException {
 
@@ -70,7 +67,7 @@ public class UserDAO {
                 """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
@@ -90,7 +87,6 @@ public class UserDAO {
         throw new SQLException("Failed to create customer: no ID returned.");
     }
 
-    // insert admin into db
     public Admin registerAdmin(String firstName, String lastName, String email) throws SQLException {
         String sql = """
                 INSERT INTO users (first_name, last_name, email, role)
@@ -98,7 +94,7 @@ public class UserDAO {
                 """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
@@ -116,7 +112,6 @@ public class UserDAO {
         throw new SQLException("Failed to create admin: no ID returned.");
     }
 
-    // insert an agent into db
     public Agent registerAgent(String firstName, String lastName, String email) throws SQLException {
         String sql = """
                 INSERT INTO users (first_name, last_name, email, role)
@@ -124,7 +119,7 @@ public class UserDAO {
                 """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
@@ -142,7 +137,28 @@ public class UserDAO {
         throw new SQLException("Failed to create agent: no ID returned.");
     }
 
-    // map user row to user object
+    public boolean updateCustomer(Customer customer) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET first_name = ?, last_name = ?, email = ?, phone = ?, subscribed = ?
+                WHERE id = ? AND role = 'CUSTOMER'
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, customer.getFirstName());
+            ps.setString(2, customer.getLastName());
+            ps.setString(3, customer.getEmail());
+            ps.setString(4, customer.getPhone());
+            ps.setBoolean(5, customer.isSubscribed());
+            ps.setInt(6, customer.getId());
+
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated == 1; // ✅ true if update succeeded
+        }
+    }
+
     private User mapRow(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String first = rs.getString("first_name");
@@ -166,4 +182,3 @@ public class UserDAO {
         }
     }
 }
-
